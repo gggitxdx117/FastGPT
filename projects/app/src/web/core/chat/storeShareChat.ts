@@ -23,6 +23,7 @@ export const useShareChatStore = create<State>()(
         clearLocalHistory() {
           // abandon
           set((state) => {
+            state.localUId = `shareChat-${Date.now()}-${nanoid()}`;
             state.shareChatHistory = state.shareChatHistory.map((item) => ({
               ...item,
               delete: true

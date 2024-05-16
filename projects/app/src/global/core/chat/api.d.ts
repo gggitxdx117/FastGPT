@@ -42,6 +42,12 @@ export type InitChatResponse = {
     canUse?: boolean;
   };
 };
+export type putChatAndNickNameProps = {
+  event_type: string;
+  token: string;
+  chatId?: string;
+  nickName?: string;
+};
 
 /* ---------- history ----------- */
 export type GetHistoriesProps = OutLinkChatAuthProps & {

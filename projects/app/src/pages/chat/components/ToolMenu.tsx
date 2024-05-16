@@ -6,11 +6,13 @@ import { useTranslation } from 'next-i18next';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useRouter } from 'next/router';
 import MyMenu from '@fastgpt/web/components/common/MyMenu';
+import { useShareChatStore } from '@/web/core/chat/storeShareChat';
 
 const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
   const { t } = useTranslation();
   const { onExportChat } = useChatBox();
   const router = useRouter();
+  const { clearLocalHistory } = useShareChatStore();
 
   const menuList = useMemo(
     () => [
@@ -18,6 +20,7 @@ const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
         icon: 'core/chat/chatLight',
         label: t('core.chat.New Chat'),
         onClick: () => {
+          clearLocalHistory();
           router.replace({
             query: {
               ...router.query,

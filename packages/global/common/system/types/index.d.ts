@@ -13,6 +13,7 @@ import { SubTypeEnum } from '../../../support/wallet/sub/constants';
 /* fastgpt main */
 export type FastGPTConfigFileType = {
   feConfigs: FastGPTFeConfigsType;
+  presetPromptlist: PresetPromptType[];
   systemEnv: SystemEnvType;
   subPlans?: SubPlanType;
   llmModels: ChatModelItemType[];
@@ -69,6 +70,11 @@ export type SystemEnvType = {
   oneapiUrl?: string;
   chatApiKey?: string;
 };
+
+export type PresetPromptType = {
+  title: string;
+  prompt: string;
+}
 
 // declare global {
 //   var feConfigs: FastGPTFeConfigsType;

@@ -1,4 +1,4 @@
-import { FastGPTFeConfigsType, SystemEnvType } from '@fastgpt/global/common/system/types';
+import { FastGPTFeConfigsType, SystemEnvType, PresetPromptType } from '@fastgpt/global/common/system/types';
 import {
   AudioSpeechModelType,
   ReRankModelItemType,
@@ -15,6 +15,7 @@ declare global {
   var subPlans: SubPlanType | undefined;
 
   var llmModels: LLMModelItemType[];
+  var presetPromptlist: PresetPromptType[];
   var vectorModels: VectorModelItemType[];
   var audioSpeechModels: AudioSpeechModelType[];
   var whisperModel: WhisperModelType;

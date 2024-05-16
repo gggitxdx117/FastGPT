@@ -11,7 +11,7 @@ import type {
   WhisperModelType
 } from '@fastgpt/global/core/ai/model.d';
 import { InitDateResponse } from '@/global/common/api/systemRes';
-import { FastGPTFeConfigsType } from '@fastgpt/global/common/system/types';
+import { FastGPTFeConfigsType, PresetPromptType } from '@fastgpt/global/common/system/types';
 import { SubPlanType } from '@fastgpt/global/support/wallet/sub/type';
 
 type LoginStoreType = { provider: `${OAuthEnum}`; lastRoute: string; state: string };
@@ -36,6 +36,7 @@ type State = {
   setIsNotSufficientModal: (val: boolean) => void;
 
   feConfigs: FastGPTFeConfigsType;
+  presetPromptlist: PresetPromptType[];
   subPlans?: SubPlanType;
   systemVersion: string;
   llmModelList: LLMModelItemType[];
@@ -117,10 +118,12 @@ export const useSystemStore = create<State>()(
         vectorModelList: [],
         audioSpeechModelList: [],
         reRankModelList: [],
+        presetPromptlist: [],
         whisperModel: undefined,
         initStaticData(res) {
           set((state) => {
             state.feConfigs = res.feConfigs || {};
+            state.presetPromptlist = res.presetPromptlist || [];
             state.subPlans = res.subPlans;
             state.systemVersion = res.systemVersion;
 

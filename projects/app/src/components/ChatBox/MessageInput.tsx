@@ -1,6 +1,7 @@
 import { useSpeech } from '@/web/common/hooks/useSpeech';
+import { useRouter } from 'next/router';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { Box, Flex, Image, Spinner, Textarea } from '@chakra-ui/react';
+import { Box, Flex, Image, Spinner, Textarea, Tooltip } from '@chakra-ui/react';
 import React, { useRef, useEffect, useCallback, useTransition } from 'react';
 import { useTranslation } from 'next-i18next';
 import MyTooltip from '../MyTooltip';
@@ -37,6 +38,7 @@ const MessageInput = ({
 }) => {
   const { setValue, watch, control } = chatForm;
   const inputValue = watch('input');
+  const router = useRouter();
   const {
     update: updateFile,
     remove: removeFile,
@@ -50,7 +52,7 @@ const MessageInput = ({
 
   const { shareId, outLinkUid, teamId, teamToken, isChatting, whisperConfig, autoTTSResponse } =
     useChatProviderStore();
-  const { isPc, whisperModel } = useSystemStore();
+  const { isPc, whisperModel, presetPromptlist } = useSystemStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { t } = useTranslation();
 
@@ -155,6 +157,43 @@ const MessageInput = ({
     replaceFile([]);
   };
 
+  /* on select */
+  var showSelect = inputValue.charAt(0) === '/';
+  const handleSelect = useCallback(async (text: any) => {
+    resetInputVal({ text });
+  }, [TextareaDom, fileList, resetInputVal, replaceFile]);
+
+  const searchRegExp = function (nameVal: any) {
+    //支持模糊搜索
+    let pattr = "^"
+    let pre_look = "(?=.*"
+
+    let word_map: any = {}
+    //统计字符表，使得不仅要匹配上字符，字符数量是相同的
+    nameVal.trim().split("").forEach((word: any) => {
+      let lower = word.toLowerCase()
+      if (word_map[lower]) {
+        word_map[lower]++
+      }
+      else {
+        word_map[lower] = 1
+      }
+    })
+
+    //构造模式匹配字符串
+    Object.keys(word_map).forEach((key) => {
+      let num = word_map[key]
+      pattr += pre_look
+      for (let i = 0; i < num; i++) {
+        if (i !== 0) pattr += ".*"
+        pattr += key
+      }
+      pattr += ")"
+    })
+    pattr += ".*"
+    console.log(pattr)
+    return pattr;
+  }
   /* whisper init */
   const {
     isSpeaking,
@@ -207,6 +246,63 @@ const MessageInput = ({
 
   return (
     <Box m={['0 auto', '10px auto']} w={'100%'} maxW={['auto', 'min(800px, 100%)']} px={[0, 5]}>
+      {showSelect && (
+        <Box
+          border={'1px solid rgba(0,0,0,0.12)'}
+          rounded={'md'}
+          pt={2}
+          pb={2}
+          zIndex={10}
+          pl={3}
+          pr={3}
+          bg={'white'}
+          maxHeight={'50vh'}
+          overflowY={'auto'}
+          color={'primary.500'}>
+          {presetPromptlist.map((item, i) => (!inputValue.slice(1) || item.prompt.replace(/\n/g, "").search(new RegExp(searchRegExp(inputValue.slice(1)), 'i')) > -1) && (
+            <Box
+              p={2}
+              key={i}
+              _hover={{
+                backgroundColor: 'primary.50',
+                color: 'primary.600'
+              }}
+              onClick={(e) => {
+                handleSelect(`${item.prompt}`)
+              }}>
+              <Box
+                w={'100%'}
+                py={0}
+                fontWeight={'bold'}
+                height={'22px'}
+                lineHeight={'22px'}
+                overflow={'hidden'}
+                textOverflow={'ellipsis'}
+                whiteSpace={'nowrap'}
+                fontSize={'14px'}
+                onClick={(e) => {
+                }}
+              >
+                {item.title}
+              </Box>
+              <Box
+                w={'100%'}
+                py={0}
+                height={'22px'}
+                lineHeight={'22px'}
+                overflow={'hidden'}
+                textOverflow={'ellipsis'}
+                whiteSpace={'nowrap'}
+                fontSize={'14px'}
+                onClick={(e) => {
+                }}
+              >
+                {item.prompt}
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
       <Box
         pt={fileList.length > 0 ? '10px' : ['14px', '18px']}
         pb={['14px', '18px']}
@@ -355,6 +451,10 @@ const MessageInput = ({
               textarea.style.height = textareaMinH;
               textarea.style.height = `${textarea.scrollHeight}px`;
               setValue('input', textarea.value);
+              // 预设提示信息，当输入/时触发
+              if (textarea.value.charAt(0) === '/') {
+                console.log(textarea.value)
+              }
             }}
             onKeyDown={(e) => {
               // enter send.(pc or iframe && enter and unPress shift)
@@ -376,8 +476,7 @@ const MessageInput = ({
               // 全选内容
               // @ts-ignore
               e.key === 'a' && e.ctrlKey && e.target?.select();
-
-              if ((isPc || window !== parent) && e.keyCode === 13 && !e.shiftKey) {
+              if ((isPc || router.query.qIsPc || window !== parent) && e.keyCode === 13 && !e.shiftKey) {
                 handleSend();
                 e.preventDefault();
               }

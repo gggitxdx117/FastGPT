@@ -22,7 +22,7 @@ import ChatHistorySlider from './components/ChatHistorySlider';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { checkChatSupportSelectFileByChatModels } from '@/web/core/chat/utils';
 import { useTranslation } from 'next-i18next';
-import { getInitOutLinkChatInfo } from '@/web/core/chat/api';
+import { getInitOutLinkChatInfo, putChatAndNickName } from '@/web/core/chat/api';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
 import { useChatStore } from '@/web/core/chat/storeChat';
 import { ChatStatusEnum } from '@fastgpt/global/core/chat/constants';
@@ -47,13 +47,19 @@ const OutLink = ({
     shareId = '',
     chatId = '',
     showHistory = '1',
+    showHeader = '0',
     authToken,
+    nickName = '',
+    avatarUrl = '',
     ...customVariables
   } = router.query as {
     shareId: string;
     chatId: string;
     showHistory: '0' | '1';
+    showHeader: '0' | '1';
     authToken: string;
+    nickName: string;
+    avatarUrl: string;
     [key: string]: string;
   };
   const { toast } = useToast();
@@ -188,6 +194,15 @@ const OutLink = ({
   const loadChatInfo = useCallback(
     async (shareId: string, chatId: string) => {
       if (!shareId) return null;
+      if (!chatId) {
+        let defaultChatId = outLinkUid.slice(-12);
+        router.replace({
+          query: {
+            ...router.query,
+            chatId: defaultChatId
+          }
+        });
+      }
 
       try {
         const res = await getInitOutLinkChatInfo({
@@ -200,6 +215,15 @@ const OutLink = ({
           dataId: item.dataId || nanoid(),
           status: ChatStatusEnum.finish
         }));
+        // 绑定chatId与nickName的关系
+        if (nickName) {
+          putChatAndNickName({
+            chatId,
+            nickName,
+            "event_type": "put-chatid-nickname",
+            "token": "h6idadN1CsV0u5GEvBCKlc5SWQXzd4Va"
+          });
+        }
 
         setChatData({
           ...res,
@@ -277,7 +301,7 @@ const OutLink = ({
       <Head>
         <title>{appName || chatData.app?.name}</title>
         <meta name="description" content={appIntro} />
-        <link rel="icon" href={appAvatar || chatData.app?.avatar} />
+        <link rel="icon" href={avatarUrl || appAvatar || chatData.app?.avatar} />
       </Head>
       <MyBox
         isLoading={isFetching}
@@ -372,7 +396,7 @@ const OutLink = ({
         >
           {/* header */}
           <ChatHeader
-            appAvatar={chatData.app.avatar}
+            appAvatar={avatarUrl || appAvatar || chatData.app?.avatar}
             appName={chatData.app.name}
             history={chatData.history}
             showHistory={showHistory === '1'}
