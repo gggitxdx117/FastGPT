@@ -47,7 +47,24 @@ const Markdown = ({
       pre: 'div',
       p: (pProps: any) => <p {...pProps} dir="auto" />,
       code: Code,
-      a: A
+      a: (pProps: any) => <a {...pProps} onClick={(e) => {
+        e.preventDefault();
+        // 向小程序传递消息
+        try {
+          const h5Manager = window?.tt?.miniProgram?.createMessageManager();
+          h5Manager?.transferMessage({
+              data:{"test":"b"},
+              success:(res: any)=>{
+                window.open('https://applink.feishu.cn/client/web_url/open?mode=window&url=' + encodeURIComponent(pProps.href), '_blank');
+              },
+              fail:(res: any)=>{
+                window.open(pProps.href, '_blank');
+              }
+          })
+        } catch (error) {
+          window.open(pProps.href, '_blank');
+        }
+      }}></a>,
     }),
     []
   );

@@ -33,6 +33,8 @@ function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href={feConfigs.favicon || process.env.SYSTEM_FAVICON} />
       </Head>
       {scripts?.map((item, i) => <Script key={i} strategy="lazyOnload" {...item}></Script>)}
+      {/* <script type="text/javascript" src="https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.16.js"></script> */}
+      <script type="text/javascript" src="https://lf1-cdn-tos.bytegoofy.com/goofy/ee/spm/lark/jssdk/webview/jssdk-1.0.4.js"></script>
 
       <QueryClientContext>
         <I18nContextProvider>
