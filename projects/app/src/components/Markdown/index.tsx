@@ -33,7 +33,9 @@ export enum CodeClassName {
   quote = 'quote',
   files = 'files'
 }
-
+declare global {
+  var tt: any;
+}
 const Markdown = ({
   source = '',
   showAnimation = false
@@ -51,7 +53,7 @@ const Markdown = ({
         e.preventDefault();
         // 向小程序传递消息
         try {
-          const h5Manager = window?.tt?.miniProgram?.createMessageManager();
+          const h5Manager = tt?.miniProgram?.createMessageManager();
           h5Manager?.transferMessage({
               data:{"test":"b"},
               success:(res: any)=>{
