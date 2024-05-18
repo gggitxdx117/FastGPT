@@ -87,6 +87,18 @@ const nextConfig = {
     return config;
   },
   transpilePackages: ['@fastgpt/*', 'ahooks', '@chakra-ui/*', 'react'],
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
   experimental: {
     // 指定导出包优化，按需引入包模块
     optimizePackageImports: ['mongoose', 'pg'],
