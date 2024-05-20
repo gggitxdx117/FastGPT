@@ -46,7 +46,7 @@ const OutLink = ({
   const {
     shareId = '',
     chatId = '',
-    showHistory = '1',
+    showHistory = '0',
     showHeader = '0',
     authToken,
     nickName = '',
