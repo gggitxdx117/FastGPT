@@ -252,7 +252,8 @@ const OutLink = ({
           status: 'error',
           title: getErrText(e, t('core.shareChat.Init Error'))
         });
-        if (chatId) {
+        // 无权操作该对话记录时，清空对话ID
+        if (chatId && (e.code == 504000)) {
           router.replace({
             query: {
               ...router.query,
