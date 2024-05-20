@@ -7,8 +7,7 @@ import type {
   InitChatResponse,
   InitOutLinkChatProps,
   GetHistoriesProps,
-  InitTeamChatProps,
-  putChatAndNickNameProps
+  InitTeamChatProps
 } from '@/global/core/chat/api.d';
 import type {
   AdminUpdateFeedbackParams,
@@ -30,8 +29,6 @@ export const getInitOutLinkChatInfo = (data: InitOutLinkChatProps) =>
   GET<InitChatResponse>(`/core/chat/outLink/init`, data);
 export const getTeamChatInfo = (data: InitTeamChatProps) =>
   GET<InitChatResponse>(`/core/chat/team/init`, data);
-export const putChatAndNickName = (data: putChatAndNickNameProps) =>
-  POST('https://oa.yishouapp.com/oa/Event/callback', data);
 
 /**
  * get current window history(appid or shareId)

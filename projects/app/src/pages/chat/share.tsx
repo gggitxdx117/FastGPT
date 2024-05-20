@@ -22,7 +22,7 @@ import ChatHistorySlider from './components/ChatHistorySlider';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { checkChatSupportSelectFileByChatModels } from '@/web/core/chat/utils';
 import { useTranslation } from 'next-i18next';
-import { getInitOutLinkChatInfo, putChatAndNickName } from '@/web/core/chat/api';
+import { getInitOutLinkChatInfo } from '@/web/core/chat/api';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
 import { useChatStore } from '@/web/core/chat/storeChat';
 import { ChatStatusEnum } from '@fastgpt/global/core/chat/constants';
@@ -31,6 +31,9 @@ import { MongoOutLink } from '@fastgpt/service/support/outLink/schema';
 import { OutLinkWithAppType } from '@fastgpt/global/support/outLink/type';
 import { addLog } from '@fastgpt/service/common/system/log';
 import { connectToDatabase } from '@/service/mongo';
+declare global {
+  var tt: any;
+}
 
 const OutLink = ({
   appName,
@@ -49,7 +52,6 @@ const OutLink = ({
     showHistory = '0',
     showHeader = '0',
     authToken,
-    nickName = '',
     avatarUrl = '',
     ...customVariables
   } = router.query as {
@@ -58,7 +60,6 @@ const OutLink = ({
     showHistory: '0' | '1';
     showHeader: '0' | '1';
     authToken: string;
-    nickName: string;
     avatarUrl: string;
     [key: string]: string;
   };
@@ -196,12 +197,13 @@ const OutLink = ({
       if (!shareId) return null;
       if (!chatId) {
         let defaultChatId = outLinkUid.slice(-12);
-        router.replace({
+        await router.replace({
           query: {
             ...router.query,
             chatId: defaultChatId
           }
         });
+        return null;
       }
 
       try {
@@ -215,14 +217,21 @@ const OutLink = ({
           dataId: item.dataId || nanoid(),
           status: ChatStatusEnum.finish
         }));
-        // 绑定chatId与nickName的关系
-        if (nickName) {
-          putChatAndNickName({
-            chatId,
-            nickName,
-            "event_type": "put-chatid-nickname",
-            "token": "h6idadN1CsV0u5GEvBCKlc5SWQXzd4Va"
-          });
+
+        // 向小程序传递消息--为了绑定chatId与 登录用户之间 的关系
+        try {
+          const h5Manager = tt?.miniProgram?.createMessageManager();
+          h5Manager?.transferMessage({
+              data:{"chatId": chatId, "shareId": shareId, "messageType": "auth"},
+              success:(res: any)=>{
+                console.log('向小程序传递消息成功')
+              },
+              fail:(res: any)=>{
+                console.log('向小程序传递消息失败')
+              }
+          })
+        } catch (error) {
+          console.log(error)
         }
 
         setChatData({
