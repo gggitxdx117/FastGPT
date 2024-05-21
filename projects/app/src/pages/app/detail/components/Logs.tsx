@@ -117,6 +117,7 @@ const Logs = ({ appId }: { appId: string }) => {
                 onClick={() => setDetailLogsId(item.id)}
               >
                 <Td>
+                  <Box>{item.id}</Box>
                   <Box>{t(ChatSourceMap[item.source]?.name || 'UnKnow')}</Box>
                   <Box color={'myGray.500'}>{dayjs(item.time).format('YYYY/MM/DD HH:mm')}</Box>
                 </Td>
@@ -290,7 +291,7 @@ const DetailLogsModal = ({
           {isPc ? (
             <>
               <Box mr={3} color={'myGray.1000'}>
-                {title}
+                [{chatId}] {title}
               </Box>
               <Tag>
                 <MyIcon name={'history'} w={'14px'} />
