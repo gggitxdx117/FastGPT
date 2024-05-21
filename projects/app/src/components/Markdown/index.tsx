@@ -56,7 +56,12 @@ const Markdown = ({
           h5Manager?.transferMessage({
               data:{"test":"b"},
               success:(res: any)=>{
-                window.open('https://applink.feishu.cn/client/web_url/open?mode=window&url=' + encodeURIComponent(pProps.href), '_blank');
+                // 判断链接是否包含applink，如果不是，需要进行转换
+                if (!pProps.href.startsWith('https://applink')) {
+                  window.open('https://applink.feishu.cn/client/web_url/open?mode=window&url=' + encodeURIComponent(pProps.href), '_blank');
+                } else {
+                  window.open(pProps.href, '_blank');
+                }
               },
               fail:(res: any)=>{
                 window.open(pProps.href, '_blank');
