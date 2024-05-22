@@ -42,8 +42,6 @@ const HighlightText = ({
   const regex = new RegExp(`${searchRegExp(matchText)}`, 'gi');
   const parts = rawText.split(regex);
   const parr = matchText.toLocaleLowerCase().split('');
-  console.log(regex)
-  console.log(parts)
 
   return (
     <Box>

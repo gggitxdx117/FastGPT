@@ -204,7 +204,7 @@ const ChatInput = ({
       pattr += ")"
     })
     pattr += ".*"
-    console.log(pattr)
+    // console.log(pattr)
     return pattr;
   }
   /* whisper init */
