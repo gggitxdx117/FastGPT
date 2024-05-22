@@ -3,10 +3,12 @@
   "App": "App",
   "Export": "Export",
   "Folder": "Folder",
+  "Is open": "Opened",
   "Login": "Login",
   "Move": "Move",
   "Name": "Name",
   "New Create": "Create New",
+  "No data": "No data",
   "Rename": "Rename",
   "Running": "Running",
   "UnKnow": "Unknown",
@@ -15,6 +17,7 @@
     "Action": "Action",
     "Add": "Add",
     "Add New": "Add New",
+    "Add Success": "Add successfully",
     "All": "All",
     "Back": "Back",
     "Beta": "Beta",
@@ -45,6 +48,7 @@
     "Delete Tip": "Delete Tip",
     "Delete Warning": "Delete Warning",
     "Detail": "Detail",
+    "Documents": "Documents",
     "Done": "Done",
     "Edit": "Edit",
     "Exit": "Exit",
@@ -101,6 +105,7 @@
     "Search": "Search",
     "Select File Failed": "Select File Failed",
     "Select One Folder": "Select a folder",
+    "Select all": "Select all",
     "Select template": "Select template",
     "Set Avatar": "Click to set avatar",
     "Set Name": "Set a name",
@@ -1174,6 +1179,7 @@
     }
   },
   "error": {
+    "Create failed": "Create failed",
     "fileNotFound": "File not found~",
     "team": {
       "overSize": "Team members exceed the limit"

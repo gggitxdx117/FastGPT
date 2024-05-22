@@ -21,7 +21,10 @@ import ChatHistorySlider from './components/ChatHistorySlider';
 import ChatHeader from './components/ChatHeader';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { useTranslation } from 'next-i18next';
-import { checkChatSupportSelectFileByChatModels } from '@/web/core/chat/utils';
+import {
+  checkChatSupportSelectFileByChatModels,
+  getAppQuestionGuidesByUserGuideModule
+} from '@/web/core/chat/utils';
 import { useChatStore } from '@/web/core/chat/storeChat';
 import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 12);
@@ -35,6 +38,8 @@ import { getErrText } from '@fastgpt/global/common/error/utils';
 import MyBox from '@fastgpt/web/components/common/MyBox';
 import SliderApps from './components/SliderApps';
 import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
+import { StoreNodeItemType } from '@fastgpt/global/core/workflow/type';
+import { getAppQGuideCustomURL } from '@/web/core/app/utils';
 
 const OutLink = () => {
   const { t } = useTranslation();
@@ -358,7 +363,7 @@ const OutLink = () => {
                 ref={ChatBoxRef}
                 appAvatar={chatData.app.avatar}
                 userAvatar={chatData.userAvatar}
-                userGuideModule={chatData.app?.userGuideModule}
+                chatConfig={chatData.app?.chatConfig}
                 showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
                 feedbackType={'user'}
                 onUpdateVariable={(e) => {}}

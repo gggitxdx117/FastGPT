@@ -86,7 +86,12 @@ const nextConfig = {
 
     return config;
   },
-  transpilePackages: ['@fastgpt/*', 'ahooks', '@chakra-ui/*', 'react'],
+  transpilePackages: ['@fastgpt/*', 'ahooks'],
+  experimental: {
+    // 指定导出包优化，按需引入包模块
+    optimizePackageImports: ['mongoose', 'pg'],
+    outputFileTracingRoot: path.join(__dirname, '../../')
+  },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
@@ -98,11 +103,6 @@ const nextConfig = {
     // your project has type errors.
     // !! WARN !!
     ignoreBuildErrors: true,
-  },
-  experimental: {
-    // 指定导出包优化，按需引入包模块
-    optimizePackageImports: ['mongoose', 'pg'],
-    outputFileTracingRoot: path.join(__dirname, '../../')
   }
 };
 

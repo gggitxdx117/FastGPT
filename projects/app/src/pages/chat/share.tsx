@@ -412,6 +412,7 @@ const OutLink = ({
               history={chatData.history}
               showHistory={showHistory === '1'}
               onOpenSlider={onOpenSlider}
+              appId={chatData.appId}
             />
             {/* chat box */}
             <Box flex={1}>
@@ -420,7 +421,7 @@ const OutLink = ({
                 ref={ChatBoxRef}
                 appAvatar={avatarUrl || appAvatar || chatData.app?.avatar}
                 userAvatar={chatData.userAvatar}
-                userGuideModule={chatData.app?.userGuideModule}
+                chatConfig={chatData.app?.chatConfig}
                 showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
                 feedbackType={'user'}
                 onUpdateVariable={(e) => {}}
