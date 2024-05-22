@@ -26,7 +26,7 @@ export default function InputGuideBox({
 
   const { data = [] } = useRequest2(
     async () => {
-      if (!text) return [];
+      if (!text || text.charAt(0) == '/') return [];
       return await queryChatInputGuideList(
         {
           appId,
