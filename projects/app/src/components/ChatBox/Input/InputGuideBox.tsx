@@ -1,6 +1,7 @@
 import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
 import MyIcon from '@fastgpt/web/components/common/Icon';
+import { useRouter } from 'next/router';
 import { useI18n } from '@/web/context/I18n';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import { queryChatInputGuideList } from '@/web/core/chat/inputGuide/api';
@@ -8,6 +9,7 @@ import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import { useTranslation } from 'next-i18next';
 import HighlightText from '@fastgpt/web/components/common/String/HighlightText';
 import { useChatProviderStore } from '../Provider';
+import { useShareChatStore } from '@/web/core/chat/storeShareChat';
 
 export default function InputGuideBox({
   appId,
@@ -23,6 +25,16 @@ export default function InputGuideBox({
   const { t } = useTranslation();
   const { chatT } = useI18n();
   const { chatInputGuide } = useChatProviderStore();
+  const router = useRouter();
+  const { localUId } = useShareChatStore();
+  const {
+    shareId = '',
+    authToken
+  } = router.query as {
+    shareId: string;
+    authToken: string;
+  };
+  const outLinkUid: string = authToken || localUId;
 
   const { data = [] } = useRequest2(
     async () => {
@@ -30,7 +42,9 @@ export default function InputGuideBox({
       return await queryChatInputGuideList(
         {
           appId,
-          searchKey: text
+          searchKey: text,
+          shareId,
+          outLinkUid
         },
         chatInputGuide.customUrl ? chatInputGuide.customUrl : undefined
       );

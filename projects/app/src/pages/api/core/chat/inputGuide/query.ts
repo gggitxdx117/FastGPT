@@ -3,10 +3,13 @@ import { MongoChatInputGuide } from '@fastgpt/service/core/chat/inputGuide/schem
 import { NextAPI } from '@/service/middleware/entry';
 import { ApiRequestProps } from '@fastgpt/service/type/next';
 import { authApp } from '@fastgpt/service/support/permission/auth/app';
+import { authOutLink } from '@/service/support/permission/auth/outLink';
 
 export type QueryChatInputGuideProps = {
   appId: string;
   searchKey: string;
+  outLinkUid: string;
+  shareId: string;
 };
 export type QueryChatInputGuideResponse = string[];
 
@@ -14,9 +17,14 @@ async function handler(
   req: ApiRequestProps<{}, QueryChatInputGuideProps>,
   res: NextApiResponse<any>
 ): Promise<QueryChatInputGuideResponse> {
-  const { appId, searchKey } = req.query;
+  const { appId, searchKey, outLinkUid, shareId } = req.query;
 
-  await authApp({ req, appId, authToken: true, authApiKey: true, per: 'r' });
+  if (shareId) {
+    // auth link permission
+    await authOutLink({ shareId, outLinkUid });
+  } else {
+    await authApp({ req, appId, authToken: true, authApiKey: true, per: 'r' });
+  }
 
   const searchRegExp = function (nameVal: any) {
     //支持模糊搜索
