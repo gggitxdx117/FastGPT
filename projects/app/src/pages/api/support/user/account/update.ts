@@ -22,11 +22,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // auth key
     if (openaiAccount?.key) {
       console.log('auth user openai key', openaiAccount?.key);
+      let account = openaiAccount;
       const baseUrl = openaiAccount?.baseUrl || openaiBaseUrl;
-      openaiAccount.baseUrl = baseUrl;
+      account.baseUrl = baseUrl;
 
       const ai = getAIApi({
-        userKey: openaiAccount
+        userKey: account
       });
 
       const response = await ai.chat.completions.create({
