@@ -18,6 +18,8 @@ import { textareaMinH } from '../constants';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 import { useChatProviderStore } from '../Provider';
 import dynamic from 'next/dynamic';
+import HighlightText from '@fastgpt/web/components/common/String/HighlightText';
+
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 6);
 
 const InputGuideBox = dynamic(() => import('./InputGuideBox'));
@@ -197,7 +199,7 @@ const ChatInput = ({
       pattr += pre_look
       for (let i = 0; i < num; i++) {
         if (i !== 0) pattr += ".*"
-        pattr += key
+        pattr += key.replace(/\\/g, '\\\\').replace(/\+/g, '\\+')
       }
       pattr += ")"
     })
@@ -269,14 +271,14 @@ const ChatInput = ({
           bg={'white'}
           maxHeight={'50vh'}
           overflowY={'auto'}
-          color={'primary.500'}>
+          color={'inherit'}>
           {presetPromptlist.map((item, i) => (!inputValue.slice(1) || item.prompt.replace(/\n/g, "").search(new RegExp(searchRegExp(inputValue.slice(1)), 'i')) > -1) && (
             <Box
               p={2}
               key={i}
               _hover={{
                 backgroundColor: 'primary.50',
-                color: 'primary.600'
+                color: 'inherit'
               }}
               onClick={(e) => {
                 handleSelect(`${item.prompt}`)
@@ -308,7 +310,7 @@ const ChatInput = ({
                 onClick={(e) => {
                 }}
               >
-                {item.prompt}
+                <HighlightText rawText={item.prompt} matchText={inputValue.substring(1)} />
               </Box>
             </Box>
           ))}
