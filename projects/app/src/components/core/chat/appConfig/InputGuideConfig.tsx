@@ -205,7 +205,7 @@ const LexiconConfigModal = ({ appId, onClose }: { appId: string; onClose: () => 
     itemHeight: 46,
     overscan: 20,
 
-    pageSize: 20,
+    pageSize: 100,
     defaultParams: {
       appId,
       searchKey
