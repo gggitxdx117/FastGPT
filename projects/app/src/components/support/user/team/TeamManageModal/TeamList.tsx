@@ -37,7 +37,7 @@ function TeamList() {
           {t('common.Team')}
         </Box>
         {/* if there is no team */}
-        {myTeams.length < 1 && (
+        {userInfo?.username == 'root' && (
           <IconButton
             variant={'ghost'}
             border={'none'}
