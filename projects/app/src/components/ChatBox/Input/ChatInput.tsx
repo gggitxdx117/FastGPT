@@ -8,7 +8,6 @@ import MyTooltip from '../../MyTooltip';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useSelectFile } from '@/web/common/file/hooks/useSelectFile';
 import { compressImgFileAndUpload } from '@/web/common/file/controller';
-import { customAlphabet } from 'nanoid';
 import { ChatFileTypeEnum } from '@fastgpt/global/core/chat/constants';
 import { addDays } from 'date-fns';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
@@ -16,11 +15,12 @@ import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants'
 import { ChatBoxInputFormType, ChatBoxInputType, UserInputFileItemType } from '../type';
 import { textareaMinH } from '../constants';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
-import { useChatProviderStore } from '../Provider';
+import { ChatBoxContext } from '../Provider';
 import dynamic from 'next/dynamic';
 import HighlightText from '@fastgpt/web/components/common/String/HighlightText';
 
-const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 6);
+import { useContextSelector } from 'use-context-selector';
+import { getNanoid } from '@fastgpt/global/common/string/tools';
 
 const InputGuideBox = dynamic(() => import('./InputGuideBox'));
 
@@ -64,7 +64,7 @@ const ChatInput = ({
     whisperConfig,
     autoTTSResponse,
     chatInputGuide
-  } = useChatProviderStore();
+  } = useContextSelector(ChatBoxContext, (v) => v);
   const { isPc, whisperModel, presetPromptlist } = useSystemStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { t } = useTranslation();
@@ -123,7 +123,7 @@ const ChatInput = ({
                 reader.readAsDataURL(file);
                 reader.onload = () => {
                   const item = {
-                    id: nanoid(),
+                    id: getNanoid(6),
                     rawFile: file,
                     type: ChatFileTypeEnum.image,
                     name: file.name,
@@ -136,7 +136,7 @@ const ChatInput = ({
                 };
               } else {
                 resolve({
-                  id: nanoid(),
+                  id: getNanoid(6),
                   rawFile: file,
                   type: ChatFileTypeEnum.file,
                   name: file.name,

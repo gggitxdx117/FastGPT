@@ -8,7 +8,6 @@ import { AppScheduledTriggerConfigType } from '@fastgpt/global/core/app/type';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import dynamic from 'next/dynamic';
 import type { MultipleSelectProps } from '@fastgpt/web/components/common/MySelect/type.d';
-import { useForm } from 'react-hook-form';
 import { cronParser2Fields } from '@fastgpt/global/common/string/time';
 import TimezoneSelect from '@fastgpt/web/components/common/MySelect/TimezoneSelect';
 
@@ -100,7 +99,7 @@ const ScheduledTriggerConfig = ({
 
   const timezone = value?.timezone;
   const cronString = value?.cronString;
-  const defaultPrompt = value?.defaultPrompt || '';
+  const defaultPrompt = value?.defaultPrompt;
 
   const cronSelectList = useRef<MultipleSelectProps['list']>([
     {
@@ -135,15 +134,10 @@ const ScheduledTriggerConfig = ({
       timezone?: string;
       defaultPrompt?: string;
     }) => {
-      if (!cronString) {
-        onChange(undefined);
-        return;
-      }
       onChange({
-        ...value,
-        cronString,
-        timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        defaultPrompt: defaultPrompt || ''
+        cronString: cronString ?? value?.cronString ?? '0 0 * * *',
+        timezone: timezone ?? value?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+        defaultPrompt: defaultPrompt ?? value?.defaultPrompt ?? ''
       });
     },
     [onChange, value]
@@ -315,7 +309,7 @@ const ScheduledTriggerConfig = ({
                   </Box>
                 </Flex>
                 <Box mt={5}>
-                  <Box>{t('core.app.schedule.Default prompt')}</Box>
+                  <Box mb={1}>{t('core.app.schedule.Default prompt')}</Box>
                   <Textarea
                     value={defaultPrompt}
                     rows={8}

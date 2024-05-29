@@ -108,7 +108,11 @@ export enum NodeInputKeyEnum {
   ifElseList = 'ifElseList',
 
   // variable update
-  updateList = 'updateList'
+  updateList = 'updateList',
+
+  // code
+  code = 'code',
+  codeType = 'codeType' // js|py
 }
 
 export enum NodeOutputKeyEnum {
@@ -118,8 +122,10 @@ export enum NodeOutputKeyEnum {
   answerText = 'answerText', // module answer. the value will be show and save to history
   success = 'success',
   failed = 'failed',
+  error = 'error',
   text = 'system_text',
   addOutputParam = 'system_addOutputParam',
+  rawResponse = 'system_rawResponse',
 
   // dataset
   datasetQuoteQA = 'quoteQA',

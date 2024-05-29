@@ -1,5 +1,5 @@
 import { NextApiResponse } from 'next';
-import { NodeInputKeyEnum, WorkflowIOValueTypeEnum } from '@fastgpt/global/core/workflow/constants';
+import { NodeInputKeyEnum } from '@fastgpt/global/core/workflow/constants';
 import { DispatchNodeResponseKeyEnum } from '@fastgpt/global/core/workflow/runtime/constants';
 import { NodeOutputKeyEnum } from '@fastgpt/global/core/workflow/constants';
 import type { ChatDispatchProps } from '@fastgpt/global/core/workflow/type/index.d';
@@ -28,7 +28,7 @@ import { dispatchQueryExtension } from './tools/queryExternsion';
 import { dispatchRunPlugin } from './plugin/run';
 import { dispatchPluginInput } from './plugin/runInput';
 import { dispatchPluginOutput } from './plugin/runOutput';
-import { valueTypeFormat } from './utils';
+import { removeSystemVariable, valueTypeFormat } from './utils';
 import {
   filterWorkflowEdges,
   checkNodeRunStatus
@@ -45,6 +45,8 @@ import { getReferenceVariableValue } from '@fastgpt/global/core/workflow/runtime
 import { dispatchSystemConfig } from './init/systemConfig';
 import { dispatchUpdateVariable } from './tools/runUpdateVar';
 import { addLog } from '../../../common/system/log';
+import { surrenderProcess } from '../../../common/system/tools';
+import { dispatchRunCode } from './code/run';
 
 const callbackMap: Record<FlowNodeTypeEnum, Function> = {
   [FlowNodeTypeEnum.workflowStart]: dispatchWorkflowStart,
@@ -65,6 +67,7 @@ const callbackMap: Record<FlowNodeTypeEnum, Function> = {
   [FlowNodeTypeEnum.lafModule]: dispatchLafRequest,
   [FlowNodeTypeEnum.ifElseNode]: dispatchIfElse,
   [FlowNodeTypeEnum.variableUpdate]: dispatchUpdateVariable,
+  [FlowNodeTypeEnum.code]: dispatchRunCode,
 
   // none
   [FlowNodeTypeEnum.systemConfig]: dispatchSystemConfig,
@@ -206,25 +209,34 @@ export async function dispatchWorkFlow(data: Props): Promise<DispatchFlowRespons
   }
   function checkNodeCanRun(nodes: RuntimeNodeItemType[] = []): Promise<any> {
     return Promise.all(
-      nodes.map((node) => {
+      nodes.map(async (node) => {
         const status = checkNodeRunStatus({
           node,
           runtimeEdges
         });
+
+        if (res?.closed || props.maxRunTimes <= 0) return;
+        props.maxRunTimes--;
+        console.log(props.maxRunTimes, user._id);
+
+        await surrenderProcess();
 
         if (status === 'run') {
           addLog.info(`[dispatchWorkFlow] nodeRunWithActive: ${node.name}`);
           return nodeRunWithActive(node);
         }
         if (status === 'skip') {
-          addLog.info(`[dispatchWorkFlow] nodeRunWithActive: ${node.name}`);
+          addLog.info(`[dispatchWorkFlow] nodeRunWithSkip: ${node.name}`);
           return nodeRunWithSkip(node);
         }
 
-        return [];
+        return;
       })
     ).then((result) => {
-      const flat = result.flat();
+      const flat = result.flat().filter(Boolean) as unknown as {
+        node: RuntimeNodeItemType;
+        result: Record<string, any>;
+      }[];
       if (flat.length === 0) return;
 
       // Update the node output at the end of the run and get the next nodes
@@ -267,7 +279,6 @@ export async function dispatchWorkFlow(data: Props): Promise<DispatchFlowRespons
     return params;
   }
   async function nodeRunWithActive(node: RuntimeNodeItemType) {
-    if (res?.closed || props.maxRunTimes <= 0) return [];
     // push run status messages
     if (res && stream && detail && node.showStatus) {
       responseStatus({
@@ -276,8 +287,6 @@ export async function dispatchWorkFlow(data: Props): Promise<DispatchFlowRespons
         status: 'running'
       });
     }
-
-    props.maxRunTimes--;
 
     // get node running params
     const params = getNodeRunParams(node);
@@ -411,18 +420,6 @@ export function getSystemVariable({
     cTime: getSystemTime(user.timezone)
   };
 }
-
-/* remove system variable */
-const removeSystemVariable = (variables: Record<string, any>) => {
-  const copyVariables = { ...variables };
-  delete copyVariables.appId;
-  delete copyVariables.chatId;
-  delete copyVariables.responseChatItemId;
-  delete copyVariables.histories;
-  delete copyVariables.cTime;
-
-  return copyVariables;
-};
 
 /* Merge consecutive text messages into one */
 export const mergeAssistantResponseAnswerText = (response: AIChatItemValueItemType[]) => {

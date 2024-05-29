@@ -8,7 +8,8 @@ import { queryChatInputGuideList } from '@/web/core/chat/inputGuide/api';
 import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import { useTranslation } from 'next-i18next';
 import HighlightText from '@fastgpt/web/components/common/String/HighlightText';
-import { useChatProviderStore } from '../Provider';
+import { ChatBoxContext } from '../Provider';
+import { useContextSelector } from 'use-context-selector';
 import { useShareChatStore } from '@/web/core/chat/storeShareChat';
 
 export default function InputGuideBox({
@@ -24,7 +25,8 @@ export default function InputGuideBox({
 }) {
   const { t } = useTranslation();
   const { chatT } = useI18n();
-  const { chatInputGuide } = useChatProviderStore();
+  const chatInputGuide = useContextSelector(ChatBoxContext, (v) => v.chatInputGuide);
+
   const router = useRouter();
   const { localUId } = useShareChatStore();
   const {
@@ -42,7 +44,7 @@ export default function InputGuideBox({
       return await queryChatInputGuideList(
         {
           appId,
-          searchKey: text,
+          searchKey: text.slice(0, 50),
           shareId,
           outLinkUid
         },
