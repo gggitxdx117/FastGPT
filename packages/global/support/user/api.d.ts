@@ -5,6 +5,12 @@ export type PostLoginProps = {
   password: string;
 };
 
+export type PostRegisterProps = {
+  username: string;
+  password: string;
+  code: string;
+};
+
 export type OauthLoginProps = {
   type: `${OAuthEnum}`;
   code: string;

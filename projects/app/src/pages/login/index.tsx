@@ -36,7 +36,19 @@ const Login = () => {
       setUserInfo(res.user);
       setToken(res.token);
       setTimeout(() => {
-        router.push(lastRoute ? decodeURIComponent(lastRoute) : '/app/list');
+        router.push(lastRoute && lastRoute != '/login' ? decodeURIComponent(lastRoute) : '/app/list');
+      }, 300);
+    },
+    [lastRoute, router, setLastChatId, setLastChatAppId, setUserInfo]
+  );
+
+  const registerSuccess = useCallback(
+    (res: ResLogin) => {
+      // init store
+      setLastChatId('');
+      setLastChatAppId('');
+      setTimeout(() => {
+        router.push('/login');
       }, 300);
     },
     [lastRoute, router, setLastChatId, setLastChatAppId, setUserInfo]
@@ -52,7 +64,7 @@ const Login = () => {
 
     const Component = TypeMap[type];
 
-    return <Component setPageType={setPageType} loginSuccess={loginSuccess} />;
+    return <Component setPageType={setPageType} loginSuccess={loginSuccess} registerSuccess={registerSuccess}/>;
   }
 
   /* default login type */

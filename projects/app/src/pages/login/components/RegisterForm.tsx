@@ -13,6 +13,7 @@ import { useTranslation } from 'next-i18next';
 
 interface Props {
   loginSuccess: (e: ResLogin) => void;
+  registerSuccess: (e: ResLogin) => void;
   setPageType: Dispatch<`${LoginPageTypeEnum}`>;
 }
 
@@ -23,7 +24,7 @@ interface RegisterType {
   code: string;
 }
 
-const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
+const RegisterForm = ({ setPageType, loginSuccess, registerSuccess }: Props) => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { feConfigs } = useSystemStore();
@@ -54,7 +55,7 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
     async ({ username, password, code }: RegisterType) => {
       setRequesting(true);
       try {
-        loginSuccess(
+        registerSuccess(
           await postRegister({
             username,
             code,
