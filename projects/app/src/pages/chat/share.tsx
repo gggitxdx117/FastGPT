@@ -71,7 +71,7 @@ const OutLink = ({
   const initSign = useRef(false);
   const [isEmbed, setIdEmbed] = useState(true);
 
-  const { localUId } = useShareChatStore();
+  const { localUId, clearLocalHistory } = useShareChatStore();
   const {
     histories,
     loadHistories,
@@ -263,6 +263,7 @@ const OutLink = ({
         });
         // 无权操作该对话记录时，清空对话ID
         if (chatId && (e.code == 504000)) {
+          clearLocalHistory();
           router.replace({
             query: {
               ...router.query,
