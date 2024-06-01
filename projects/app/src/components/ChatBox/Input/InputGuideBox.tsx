@@ -26,6 +26,7 @@ export default function InputGuideBox({
   const { t } = useTranslation();
   const { chatT } = useI18n();
   const chatInputGuide = useContextSelector(ChatBoxContext, (v) => v.chatInputGuide);
+  const outLinkAuthData = useContextSelector(ChatBoxContext, (v) => v.outLinkAuthData);
 
   const router = useRouter();
   const { localUId } = useShareChatStore();
@@ -45,8 +46,7 @@ export default function InputGuideBox({
         {
           appId,
           searchKey: text.slice(0, 50),
-          shareId,
-          outLinkUid
+          ...outLinkAuthData
         },
         chatInputGuide.customUrl ? chatInputGuide.customUrl : undefined
       );

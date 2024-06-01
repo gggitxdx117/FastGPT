@@ -55,16 +55,8 @@ const ChatInput = ({
     name: 'files'
   });
 
-  const {
-    shareId,
-    outLinkUid,
-    teamId,
-    teamToken,
-    isChatting,
-    whisperConfig,
-    autoTTSResponse,
-    chatInputGuide
-  } = useContextSelector(ChatBoxContext, (v) => v);
+  const { isChatting, whisperConfig, autoTTSResponse, chatInputGuide, outLinkAuthData } =
+    useContextSelector(ChatBoxContext, (v) => v);
   const { isPc, whisperModel, presetPromptlist } = useSystemStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { t } = useTranslation();
@@ -91,10 +83,7 @@ const ChatInput = ({
             maxSize: 1024 * 1024 * 16,
             // 7 day expired.
             expiredTime: addDays(new Date(), 7),
-            shareId,
-            outLinkUid,
-            teamId,
-            teamToken
+            ...outLinkAuthData
           });
           updateFile(fileIndex, {
             ...file,
@@ -216,7 +205,7 @@ const ChatInput = ({
     speakingTimeString,
     renderAudioGraph,
     stream
-  } = useSpeech({ appId, shareId, outLinkUid, teamId, teamToken });
+  } = useSpeech({ appId, ...outLinkAuthData });
   useEffect(() => {
     if (!stream) {
       return;
