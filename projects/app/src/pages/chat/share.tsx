@@ -221,14 +221,22 @@ const OutLink = ({
         // 向小程序传递消息--为了绑定chatId与 登录用户之间 的关系
         try {
           const h5Manager = tt?.miniProgram?.createMessageManager();
+          // 向小程序传递消息
           h5Manager?.transferMessage({
-              data:{"chatId": chatId, "shareId": shareId, "messageType": "auth"},
-              success:(res: any)=>{
-                console.log('向小程序传递消息成功')
-              },
-              fail:(res: any)=>{
-                console.log('向小程序传递消息失败')
-              }
+            data:{"chatId": chatId, "shareId": shareId, "messageType": "auth"},
+            success:(res: any)=>{
+              console.log('向小程序传递消息成功')
+            },
+            fail:(res: any)=>{
+              console.log('向小程序传递消息失败')
+            }
+          })
+          // 获取小程序传递的消息
+          h5Manager?.onTransferMessage(function (res: any) {
+            toast({
+              status: 'success',
+              title: 'test1'
+            });
           })
         } catch (error) {
           console.log(error)
