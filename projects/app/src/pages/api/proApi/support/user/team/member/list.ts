@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
-import { authUserRole } from '@fastgpt/service/support/permission/auth/user';
+import { authUserPer } from '@fastgpt/service/support/permission/user/auth';
 import { NextAPI } from '@/service/middleware/entry';
+import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   // 凭证校验
-  const { teamId } = await authUserRole({ req, authToken: true, authRoot: true });
+  const { teamId } = await authUserPer({ req, authToken: true, authRoot: true, per: ReadPermissionVal });
 
   const params = {
     teamId

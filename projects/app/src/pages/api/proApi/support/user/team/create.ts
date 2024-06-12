@@ -1,11 +1,12 @@
 import type { ApiRequestProps, ApiResponseType } from '@fastgpt/service/type/next';
 import { NextAPI } from '@/service/middleware/entry';
 import { jsonRes } from '@fastgpt/service/common/response';
-import { authUserRole } from '@fastgpt/service/support/permission/auth/user';
+import { authUserPer } from '@fastgpt/service/support/permission/user/auth';
 import { MongoTeam } from '@fastgpt/service/support/user/team/teamSchema';
 import { MongoUser } from '@fastgpt/service/support/user/schema';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
 import { mongoSessionRun } from '@fastgpt/service/common/mongo/sessionRun';
+import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
 import {
   TeamMemberRoleEnum,
   TeamMemberStatusEnum
@@ -33,7 +34,7 @@ async function handler(
   }
 
   // 凭证校验
-  const { tmbId } = await authUserRole({ req, authToken: true, authRoot: true });
+  const { tmbId } = await authUserPer({ req, authToken: true, authRoot: true, per: ReadPermissionVal });
   const { userId } = await MongoTeamMember.findOne({ _id: tmbId }).lean();
   const { username } = await MongoUser.findOne({ _id: userId }).lean();
   // 创建模型
