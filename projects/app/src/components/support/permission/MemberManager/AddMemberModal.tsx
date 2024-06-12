@@ -23,7 +23,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useUserStore } from '@/web/support/user/useUserStore';
 import { getTeamMembers } from '@/web/support/user/team/api';
 import MyBox from '@fastgpt/web/components/common/MyBox';
-import { Permission } from '@fastgpt/global/support/permission/controller';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import Avatar from '@/components/Avatar';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
@@ -32,11 +31,10 @@ export type AddModalPropsType = {
   onClose: () => void;
 };
 
-export function AddMemberModal({ onClose }: AddModalPropsType) {
-  const toast = useToast();
+function AddMemberModal({ onClose }: AddModalPropsType) {
   const { userInfo } = useUserStore();
 
-  const { permissionList, collaboratorList, onUpdateCollaborators, getPreLabelList } =
+  const { permissionList, collaboratorList, onUpdateCollaborators, getPerLabelList } =
     useContextSelector(CollaboratorContext, (v) => v);
   const [searchText, setSearchText] = useState<string>('');
   const {
@@ -50,7 +48,7 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
   });
   const filterMembers = useMemo(() => {
     return members.filter((item) => {
-      if (item.permission.isOwner) return false;
+      // if (item.permission.isOwner) return false;
       if (item.tmbId === userInfo?.team?.tmbId) return false;
       if (!searchText) return true;
       return item.memberName.includes(searchText);
@@ -60,8 +58,8 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
   const [selectedMemberIdList, setSelectedMembers] = useState<string[]>([]);
   const [selectedPermission, setSelectedPermission] = useState(permissionList['read'].value);
   const perLabel = useMemo(() => {
-    return getPreLabelList(selectedPermission).join('、');
-  }, [getPreLabelList, selectedPermission]);
+    return getPerLabelList(selectedPermission).join('、');
+  }, [getPerLabelList, selectedPermission]);
 
   const { mutate: onConfirm, isLoading: isUpdating } = useRequest({
     mutationFn: () => {
@@ -85,6 +83,7 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
           borderColor="myGray.200"
           borderRadius="0.5rem"
           gridTemplateColumns="55% 45%"
+          fontSize={'sm'}
         >
           <Flex
             flexDirection="column"
@@ -93,13 +92,12 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
             p="4"
             minH="200px"
           >
-            <InputGroup alignItems="center" h="32px" my="2" py="1">
+            <InputGroup alignItems="center" size="sm">
               <InputLeftElement>
                 <MyIcon name="common/searchLight" w="16px" color={'myGray.500'} />
               </InputLeftElement>
               <Input
                 placeholder="搜索用户名"
-                fontSize="lg"
                 bgColor="myGray.50"
                 onChange={(e) => setSearchText(e.target.value)}
               />
@@ -128,7 +126,6 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
                     }}
                   >
                     <Checkbox
-                      size="lg"
                       mr="3"
                       isChecked={selectedMemberIdList.includes(member.tmbId)}
                       onChange={onChange}
@@ -143,7 +140,9 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
                         <MyAvatar src={member.avatar} w="32px" />
                         <Box ml="2">{member.memberName}</Box>
                       </Flex>
-                      {!!collaborator && <PermissionTags permission={collaborator.permission} />}
+                      {!!collaborator && (
+                        <PermissionTags permission={collaborator.permission.value} />
+                      )}
                     </Flex>
                   </Flex>
                 );
@@ -167,9 +166,7 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
                     _notLast={{ mb: 2 }}
                   >
                     <Avatar src={member.avatar} w="24px" />
-                    <Box w="full" fontSize="lg">
-                      {member.memberName}
-                    </Box>
+                    <Box w="full">{member.memberName}</Box>
                     <MyIcon
                       name="common/closeLight"
                       w="16px"
@@ -202,7 +199,7 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
               h={'32px'}
             >
               {perLabel}
-              <ChevronDownIcon fontSize={'lg'} />
+              <ChevronDownIcon fontSize={'md'} />
             </Flex>
           }
           onChange={(v) => setSelectedPermission(v)}
@@ -214,3 +211,5 @@ export function AddMemberModal({ onClose }: AddModalPropsType) {
     </MyModal>
   );
 }
+
+export default AddMemberModal;

@@ -6,7 +6,7 @@ import { useConfirm } from '@fastgpt/web/hooks/useConfirm';
 import { useRouter } from 'next/router';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { AppSchema } from '@fastgpt/global/core/app/type.d';
-import { delModelById } from '@/web/core/app/api';
+import { delAppById } from '@/web/core/app/api';
 import { useTranslation } from 'next-i18next';
 import PermissionIconText from '@/components/support/permission/IconText';
 import dynamic from 'next/dynamic';
@@ -45,7 +45,7 @@ const AppCard = () => {
   const { mutate: handleDelModel, isLoading } = useRequest({
     mutationFn: async () => {
       if (!appDetail) return null;
-      await delModelById(appDetail._id);
+      await delAppById(appDetail._id);
       return 'success';
     },
     onSuccess(res) {
@@ -63,10 +63,10 @@ const AppCard = () => {
     <>
       <Box px={4}>
         <Flex alignItems={'center'} justifyContent={'space-between'}>
-          <Box fontSize={['md', 'xl']} fontWeight={'bold'}>
-            <PermissionIconText defaultPermission={appDetail.defaultPermission} />
+          <Box fontWeight={'bold'}>
+            <PermissionIconText defaultPermission={appDetail.defaultPermission} fontSize={'md'} />
           </Box>
-          <Box color={'myGray.500'} fontSize={'sm'}>
+          <Box color={'myGray.500'} fontSize={'xs'}>
             AppId:{' '}
             <Box as={'span'} userSelect={'all'}>
               {appId}
@@ -84,9 +84,9 @@ const AppCard = () => {
           bg={'primary.50'}
           position={'relative'}
         >
-          <Flex alignItems={'center'} py={2}>
+          <Flex alignItems={'center'}>
             <Avatar src={appDetail.avatar} borderRadius={'md'} w={'28px'} />
-            <Box ml={3} fontWeight={'bold'} fontSize={'lg'}>
+            <Box ml={3} fontWeight={'bold'} fontSize={'md'}>
               {appDetail.name}
             </Box>
             {appDetail.permission.isOwner && (
@@ -107,10 +107,12 @@ const AppCard = () => {
           </Flex>
           <Box
             flex={1}
-            my={2}
+            mt={3}
+            mb={4}
             className={'textEllipsis3'}
             wordBreak={'break-all'}
             color={'myGray.600'}
+            fontSize={'xs'}
           >
             {appDetail.intro || t('core.app.tip.Add a intro to app')}
           </Box>

@@ -49,7 +49,7 @@ function PermissionSelect({
   ...props
 }: PermissionSelectProps) {
   const { t } = useTranslation();
-  const { permissionList } = useContextSelector(CollaboratorContext, (v) => v);
+  const { permission, permissionList } = useContextSelector(CollaboratorContext, (v) => v);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<any>();
 
@@ -66,10 +66,16 @@ function PermissionSelect({
     });
 
     return {
-      singleCheckBoxList: list.filter((item) => item.checkBoxType === 'single'),
+      singleCheckBoxList: list
+        .filter((item) => item.checkBoxType === 'single')
+        .filter((item) => {
+          if (permission.isOwner) return true;
+          if (item.value === permissionList['manage'].value) return false;
+          return true;
+        }),
       multipleCheckBoxList: list.filter((item) => item.checkBoxType === 'multiple')
     };
-  }, [permissionList]);
+  }, [permission.isOwner, permissionList]);
   const selectedSingleValue = useMemo(() => {
     const per = new Permission({ per: value });
 
@@ -87,6 +93,12 @@ function PermissionSelect({
       })
       .map((item) => item.value);
   }, [permissionSelectList.multipleCheckBoxList, value]);
+
+  const onSelectPer = (per: PermissionValueType) => {
+    if (per === value) return;
+    onChange(per);
+    setIsOpen(false);
+  };
 
   useOutsideClick({
     ref: ref,
@@ -143,6 +155,7 @@ function PermissionSelect({
           }
           zIndex={99}
           overflowY={'auto'}
+          whiteSpace={'pre-wrap'}
         >
           {/* The list of single select permissions */}
           {permissionSelectList.singleCheckBoxList.map((item) => {
@@ -150,8 +163,7 @@ function PermissionSelect({
               const per = new Permission({ per: value });
               per.removePer(selectedSingleValue);
               per.addPer(item.value);
-              onChange(per.value);
-              setIsOpen(false);
+              onSelectPer(per.value);
             };
 
             return (
@@ -164,12 +176,14 @@ function PermissionSelect({
                   : {})}
                 {...MenuStyle}
                 onClick={change}
-                maxW={['70vw', '300px']}
+                maxW={['70vw', '260px']}
               >
-                <Radio size="lg" isChecked={selectedSingleValue === item.value} />
+                <Radio isChecked={selectedSingleValue === item.value} />
                 <Box ml={4}>
                   <Box>{item.name}</Box>
-                  <Box color={'myGray.500'}>{item.description}</Box>
+                  <Box color={'myGray.500'} fontSize={'mini'}>
+                    {item.description}
+                  </Box>
                 </Box>
               </Flex>
             );

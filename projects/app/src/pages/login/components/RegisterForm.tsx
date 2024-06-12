@@ -182,7 +182,7 @@ const RegisterForm = ({ setPageType, loginSuccess, registerSuccess }: Props) => 
           type="submit"
           mt={6}
           w={'100%'}
-          size={['md', 'lg']}
+          size={['md', 'md']}
           colorScheme="blue"
           isLoading={requesting}
           onClick={handleSubmit(onclickRegister)}

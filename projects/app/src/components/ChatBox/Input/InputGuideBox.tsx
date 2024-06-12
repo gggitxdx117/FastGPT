@@ -52,6 +52,7 @@ export default function InputGuideBox({
       );
     },
     {
+      manual: false,
       refreshDeps: [text],
       throttleWait: 300
     }

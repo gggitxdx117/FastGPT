@@ -21,10 +21,12 @@ import { appTemplates } from '@/web/core/app/templates';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
 import Avatar from '@/components/Avatar';
-import MyTooltip from '@/components/MyTooltip';
+import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import { useTranslation } from 'next-i18next';
 import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants';
+import { useContextSelector } from 'use-context-selector';
+import { AppListContext } from './context';
 
 type FormType = {
   avatar: string;
@@ -32,12 +34,15 @@ type FormType = {
   templateId: string;
 };
 
-const CreateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) => {
+const CreateModal = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const router = useRouter();
+  const { parentId, loadMyApps } = useContextSelector(AppListContext, (v) => v);
+
   const theme = useTheme();
-  const { isPc, feConfigs } = useSystemStore();
+  const { isPc } = useSystemStore();
+
   const { register, setValue, watch, handleSubmit } = useForm<FormType>({
     defaultValues: {
       avatar: '',
@@ -82,6 +87,7 @@ const CreateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
         return Promise.reject(t('core.dataset.error.Template does not exist'));
       }
       return postCreateApp({
+        parentId,
         avatar: data.avatar || template.avatar,
         name: data.name,
         type: template.type,
@@ -91,7 +97,7 @@ const CreateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     },
     onSuccess(id: string) {
       router.push(`/app/detail?appId=${id}`);
-      onSuccess();
+      loadMyApps();
       onClose();
     },
     successToast: t('common.Create Success'),
@@ -110,7 +116,7 @@ const CreateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
         <Box color={'myGray.800'} fontWeight={'bold'}>
           {t('common.Set Name')}
         </Box>
-        <Flex mt={3} alignItems={'center'}>
+        <Flex mt={2} alignItems={'center'}>
           <MyTooltip label={t('common.Set Avatar')}>
             <Avatar
               flexShrink={0}
@@ -164,11 +170,11 @@ const CreateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
             >
               <Flex alignItems={'center'}>
                 <Avatar src={item.avatar} borderRadius={'md'} w={'20px'} />
-                <Box ml={3} fontWeight={'bold'}>
+                <Box ml={3} color={'myGray.900'}>
                   {t(item.name)}
                 </Box>
               </Flex>
-              <Box fontSize={'sm'} mt={4}>
+              <Box fontSize={'xs'} mt={2} color={'myGray.600'}>
                 {t(item.intro)}
               </Box>
             </Card>
