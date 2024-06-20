@@ -159,10 +159,30 @@ const ChatBox = (
     isChatting
   } = useContextSelector(ChatBoxContext, (v) => v);
 
+  // 获取url参数值
+  const { inputC = '' } = router.query as {
+    inputC: string;
+  };
+  let decodedString = '';
+  // 对文本进行base64解码
+  if (inputC) {
+    try {
+      decodedString = Buffer.from(decodeURIComponent(inputC), 'base64').toString('utf-8');
+      setTimeout(() => {
+        /* 调整输入框高度 */
+        if (TextareaDom.current) {
+          TextareaDom.current.style.height =
+            decodedString === '' ? textareaMinH : `${TextareaDom.current.scrollHeight}px`;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('inputC解码失败', error);
+    }
+  }
   // compute variable input is finish.
   const chatForm = useForm<ChatBoxInputFormType>({
     defaultValues: {
-      input: '',
+      input: decodedString,
       files: [],
       variables: {},
       chatStarted: false
