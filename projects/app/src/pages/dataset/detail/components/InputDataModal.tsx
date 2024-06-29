@@ -75,16 +75,16 @@ const InputDataModal = ({
   });
 
   const tabList = [
-    { label: t('dataset.data.edit.Content'), id: TabEnum.content, icon: 'common/overviewLight' },
+    { label: t('dataset.data.edit.Content'), value: TabEnum.content, icon: 'common/overviewLight' },
     {
       label: t('dataset.data.edit.Index', { amount: indexes.length }),
-      id: TabEnum.index,
+      value: TabEnum.index,
       icon: 'kbTest'
     },
     ...(dataId
-      ? [{ label: t('dataset.data.edit.Delete'), id: TabEnum.delete, icon: 'delete' }]
+      ? [{ label: t('dataset.data.edit.Delete'), value: TabEnum.delete, icon: 'delete' }]
       : []),
-    { label: t('dataset.data.edit.Course'), id: TabEnum.doc, icon: 'common/courseLight' }
+    { label: t('dataset.data.edit.Course'), value: TabEnum.doc, icon: 'common/courseLight' }
   ];
 
   const { ConfirmModal, openConfirm } = useConfirm({
@@ -243,10 +243,10 @@ const InputDataModal = ({
             mb={6}
             fontSize={'sm'}
           />
-          <SideTabs
+          <SideTabs<TabEnum>
             list={tabList}
-            activeId={currentTab}
-            onChange={async (e: any) => {
+            value={currentTab}
+            onChange={async (e) => {
               if (e === TabEnum.delete) {
                 return openConfirm(onDeleteData)();
               }
@@ -365,9 +365,11 @@ const InputDataModal = ({
             <Button variant={'whiteBase'} mr={3} onClick={onClose}>
               {t('common.Close')}
             </Button>
-            <MyTooltip label={collection.canWrite ? '' : t('dataset.data.Can not edit')}>
+            <MyTooltip
+              label={collection.permission.hasWritePer ? '' : t('dataset.data.Can not edit')}
+            >
               <Button
-                isDisabled={!collection.canWrite}
+                isDisabled={!collection.permission.hasWritePer}
                 // @ts-ignore
                 onClick={handleSubmit(dataId ? onUpdateData : sureImportData)}
               >

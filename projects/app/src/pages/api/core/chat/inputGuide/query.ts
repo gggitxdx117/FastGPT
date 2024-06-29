@@ -6,6 +6,7 @@ import { OutLinkChatAuthProps } from '@fastgpt/global/support/permission/chat';
 import { authChatCert } from '@/service/support/permission/auth/chat';
 import { MongoApp } from '@fastgpt/service/core/app/schema';
 import { AppErrEnum } from '@fastgpt/global/common/error/code/app';
+import { replaceRegChars } from '@fastgpt/global/common/string/tools';
 
 export type QueryChatInputGuideBody = OutLinkChatAuthProps & {
   appId: string;
@@ -31,35 +32,37 @@ async function handler(
   // 模糊搜索
   const searchRegExp = function (nameVal: any) {
     //支持模糊搜索
-    let pattr = "^"
-    let pre_look = "(?=.*"
+    let pattr = '^';
+    let pre_look = '(?=.*';
 
-    let word_map: any = {}
+    let word_map: any = {};
     //统计字符表，使得不仅要匹配上字符，字符数量是相同的
-    nameVal.trim().split("").forEach((word: any) => {
-      let lower = word.toLowerCase()
-      if (word_map[lower]) {
-        word_map[lower]++
-      }
-      else {
-        word_map[lower] = 1
-      }
-    })
+    nameVal
+      .trim()
+      .split('')
+      .forEach((word: any) => {
+        let lower = word.toLowerCase();
+        if (word_map[lower]) {
+          word_map[lower]++;
+        } else {
+          word_map[lower] = 1;
+        }
+      });
 
     //构造模式匹配字符串
     Object.keys(word_map).forEach((key) => {
-      let num = word_map[key]
-      pattr += pre_look
+      let num = word_map[key];
+      pattr += pre_look;
       for (let i = 0; i < num; i++) {
-        if (i !== 0) pattr += ".*"
-        pattr += key.replace(/\\/g, '\\\\').replace(/\+/g, '\\+')
+        if (i !== 0) pattr += '.*';
+        pattr += key.replace(/\\/g, '\\\\').replace(/\+/g, '\\+');
       }
-      pattr += ")"
-    })
-    pattr += ".*"
+      pattr += ')';
+    });
+    pattr += '.*';
     // console.log(pattr)
     return pattr;
-  }
+  };
 
   const params = {
     appId,

@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
-import Head from 'next/head';
+
 import Layout from '@/components/Layout';
 import { appWithTranslation } from 'next-i18next';
 
@@ -28,7 +28,10 @@ function App({ Component, pageProps }: AppProps) {
       />
       {scripts?.map((item, i) => <Script key={i} strategy="lazyOnload" {...item}></Script>)}
       {/* <script type="text/javascript" src="https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.16.js"></script> */}
-      <script type="text/javascript" src="https://lf1-cdn-tos.bytegoofy.com/goofy/ee/spm/lark/jssdk/webview/jssdk-1.0.4.js"></script>
+      <script
+        type="text/javascript"
+        src="https://lf1-cdn-tos.bytegoofy.com/goofy/ee/spm/lark/jssdk/webview/jssdk-1.0.4.js"
+      ></script>
 
       <QueryClientContext>
         <I18nContextProvider>

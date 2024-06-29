@@ -10,7 +10,6 @@ const nanoid = customAlphabet(
 
 type State = {
   localUId: string;
-  shareChatHistory: (ChatHistoryItemType & { delete?: boolean })[];
   clearLocalHistory: (shareId?: string) => void;
 };
 
@@ -24,19 +23,11 @@ export const useShareChatStore = create<State>()(
           // abandon
           set((state) => {
             state.localUId = `shareChat-${Date.now()}-${nanoid()}`;
-            state.shareChatHistory = state.shareChatHistory.map((item) => ({
-              ...item,
-              delete: true
-            }));
           });
         }
       })),
       {
-        name: 'shareChatStore',
-        partialize: (state) => ({
-          localUId: state.localUId,
-          shareChatHistory: state.shareChatHistory
-        })
+        name: 'shareChatStore'
       }
     )
   )

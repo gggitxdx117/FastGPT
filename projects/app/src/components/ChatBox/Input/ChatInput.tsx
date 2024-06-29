@@ -161,41 +161,46 @@ const ChatInput = ({
 
   /* on select */
   var showSelect = inputValue.charAt(0) === '/';
-  const handleSelect = useCallback(async (text: any) => {
-    resetInputVal({ text });
-  }, [TextareaDom, fileList, resetInputVal, replaceFile]);
+  const handleSelect = useCallback(
+    async (text: any) => {
+      resetInputVal({ text });
+    },
+    [TextareaDom, fileList, resetInputVal, replaceFile]
+  );
 
   const searchRegExp = function (nameVal: any) {
     //支持模糊搜索
-    let pattr = "^"
-    let pre_look = "(?=.*"
+    let pattr = '^';
+    let pre_look = '(?=.*';
 
-    let word_map: any = {}
+    let word_map: any = {};
     //统计字符表，使得不仅要匹配上字符，字符数量是相同的
-    nameVal.trim().split("").forEach((word: any) => {
-      let lower = word.toLowerCase()
-      if (word_map[lower]) {
-        word_map[lower]++
-      }
-      else {
-        word_map[lower] = 1
-      }
-    })
+    nameVal
+      .trim()
+      .split('')
+      .forEach((word: any) => {
+        let lower = word.toLowerCase();
+        if (word_map[lower]) {
+          word_map[lower]++;
+        } else {
+          word_map[lower] = 1;
+        }
+      });
 
     //构造模式匹配字符串
     Object.keys(word_map).forEach((key) => {
-      let num = word_map[key]
-      pattr += pre_look
+      let num = word_map[key];
+      pattr += pre_look;
       for (let i = 0; i < num; i++) {
-        if (i !== 0) pattr += ".*"
-        pattr += key.replace(/\\/g, '\\\\').replace(/\+/g, '\\+')
+        if (i !== 0) pattr += '.*';
+        pattr += key.replace(/\\/g, '\\\\').replace(/\+/g, '\\+');
       }
-      pattr += ")"
-    })
-    pattr += ".*"
+      pattr += ')';
+    });
+    pattr += '.*';
     // console.log(pattr)
     return pattr;
-  }
+  };
   /* whisper init */
   const {
     isSpeaking,
@@ -260,49 +265,55 @@ const ChatInput = ({
           bg={'white'}
           maxHeight={'50vh'}
           overflowY={'auto'}
-          color={'inherit'}>
-          {presetPromptlist.map((item, i) => (!inputValue.slice(1) || item.prompt.replace(/\n/g, "").search(new RegExp(searchRegExp(inputValue.slice(1)), 'i')) > -1) && (
-            <Box
-              p={2}
-              key={i}
-              _hover={{
-                backgroundColor: 'primary.50',
-                color: 'inherit'
-              }}
-              onClick={(e) => {
-                handleSelect(`${item.prompt}`)
-              }}>
-              <Box
-                w={'100%'}
-                py={0}
-                fontWeight={'bold'}
-                height={'22px'}
-                lineHeight={'22px'}
-                overflow={'hidden'}
-                textOverflow={'ellipsis'}
-                whiteSpace={'nowrap'}
-                fontSize={'14px'}
-                onClick={(e) => {
-                }}
-              >
-                {item.title}
-              </Box>
-              <Box
-                w={'100%'}
-                py={0}
-                height={'22px'}
-                lineHeight={'22px'}
-                overflow={'hidden'}
-                textOverflow={'ellipsis'}
-                whiteSpace={'nowrap'}
-                fontSize={'14px'}
-                onClick={(e) => {
-                }}
-              >
-                <HighlightText rawText={item.prompt} matchText={inputValue.substring(1)} />
-              </Box>
-            </Box>
-          ))}
+          color={'inherit'}
+        >
+          {presetPromptlist.map(
+            (item, i) =>
+              (!inputValue.slice(1) ||
+                item.prompt
+                  .replace(/\n/g, '')
+                  .search(new RegExp(searchRegExp(inputValue.slice(1)), 'i')) > -1) && (
+                <Box
+                  p={2}
+                  key={i}
+                  _hover={{
+                    backgroundColor: 'primary.50',
+                    color: 'inherit'
+                  }}
+                  onClick={(e) => {
+                    handleSelect(`${item.prompt}`);
+                  }}
+                >
+                  <Box
+                    w={'100%'}
+                    py={0}
+                    fontWeight={'bold'}
+                    height={'22px'}
+                    lineHeight={'22px'}
+                    overflow={'hidden'}
+                    textOverflow={'ellipsis'}
+                    whiteSpace={'nowrap'}
+                    fontSize={'14px'}
+                    onClick={(e) => {}}
+                  >
+                    {item.title}
+                  </Box>
+                  <Box
+                    w={'100%'}
+                    py={0}
+                    height={'22px'}
+                    lineHeight={'22px'}
+                    overflow={'hidden'}
+                    textOverflow={'ellipsis'}
+                    whiteSpace={'nowrap'}
+                    fontSize={'14px'}
+                    onClick={(e) => {}}
+                  >
+                    <HighlightText rawText={item.prompt} matchText={inputValue.substring(1)} />
+                  </Box>
+                </Box>
+              )
+          )}
         </Box>
       )}
       <Box
@@ -462,6 +473,7 @@ const ChatInput = ({
             color={'myGray.900'}
             isDisabled={isSpeaking}
             value={inputValue}
+            fontSize={['md', 'sm']}
             onChange={(e) => {
               const textarea = e.target;
               textarea.style.height = textareaMinH;
@@ -469,7 +481,7 @@ const ChatInput = ({
               setValue('input', textarea.value);
               // 预设提示信息，当输入/时触发
               if (textarea.value.charAt(0) === '/') {
-                console.log(textarea.value)
+                console.log(textarea.value);
               }
             }}
             onKeyDown={(e) => {
@@ -492,7 +504,11 @@ const ChatInput = ({
               // 全选内容
               // @ts-ignore
               e.key === 'a' && e.ctrlKey && e.target?.select();
-              if ((isPc || router.query.qIsPc || window !== parent) && e.keyCode === 13 && !e.shiftKey) {
+              if (
+                (isPc || router.query.qIsPc || window !== parent) &&
+                e.keyCode === 13 &&
+                !e.shiftKey
+              ) {
                 handleSend();
                 e.preventDefault();
               }
