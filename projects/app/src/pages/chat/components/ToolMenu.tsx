@@ -48,7 +48,7 @@ const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
     [history, onExportChat, router, t]
   );
 
-  return history.length > 0 ? (
+  return history.length > 0 || 1 ? (
     <MyMenu
       Button={
         <IconButton

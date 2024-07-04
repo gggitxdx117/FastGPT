@@ -10,6 +10,7 @@ const nanoid = customAlphabet(
 
 type State = {
   localUId: string;
+  localChatId: string;
   clearLocalHistory: (shareId?: string) => void;
 };
 
@@ -18,11 +19,12 @@ export const useShareChatStore = create<State>()(
     persist(
       immer((set, get) => ({
         localUId: `shareChat-${Date.now()}-${nanoid()}`,
+        localChatId: nanoid(),
         shareChatHistory: [], // old version field
         clearLocalHistory() {
           // abandon
           set((state) => {
-            state.localUId = `shareChat-${Date.now()}-${nanoid()}`;
+            state.localChatId = nanoid();
           });
         }
       })),

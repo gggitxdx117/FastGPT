@@ -49,9 +49,10 @@ type Props = {
 const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
   const { t } = useTranslation();
   const router = useRouter();
+  const { localUId, localChatId } = useShareChatStore();
   const {
     shareId = '',
-    chatId = '',
+    chatId = localChatId,
     showHistory = '0',
     showHeader = '0',
     authToken,
@@ -75,7 +76,6 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
   const [chatData, setChatData] = useState<InitChatResponse>(defaultChatData);
   const appId = chatData.appId;
 
-  const { localUId } = useShareChatStore();
   const outLinkUid: string = authToken || localUId;
 
   const {
@@ -173,16 +173,6 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
   const { loading } = useRequest2(
     async () => {
       if (!shareId || !outLinkUid || forbidLoadChat.current) return;
-      if (!chatId) {
-        let defaultChatId = outLinkUid.slice(-12);
-        await router.replace({
-          query: {
-            ...router.query,
-            chatId: defaultChatId
-          }
-        });
-        return null;
-      }
 
       const res = await getInitOutLinkChatInfo({
         chatId,
