@@ -34,7 +34,14 @@ export enum CodeClassName {
 }
 declare global {
   var tt: any;
+  var ys: any;
 }
+function getQueryParamFromUrl(url: string, param: string) {
+  const urlObj = new URL(url);
+  const urlParams = new URLSearchParams(urlObj.search);
+  return urlParams.get(param);
+}
+
 const Markdown = ({
   source = '',
   showAnimation = false
@@ -48,29 +55,50 @@ const Markdown = ({
       pre: 'div',
       p: (pProps: any) => <p {...pProps} dir="auto" />,
       code: Code,
-      a: (pProps: any) => <a {...pProps} onClick={(e) => {
-        e.preventDefault();
-        // 向小程序传递消息
-        try {
-          const h5Manager = tt?.miniProgram?.createMessageManager();
-          h5Manager?.transferMessage({
-              data:{"test":"b"},
-              success:(res: any)=>{
-                // 判断链接是否包含applink，如果不是，需要进行转换
-                if (!pProps.href.startsWith('https://applink')) {
-                  window.open('https://applink.feishu.cn/client/web_url/open?mode=window&url=' + encodeURIComponent(pProps.href), '_blank');
-                } else {
-                  window.open(pProps.href, '_blank');
-                }
-              },
-              fail:(res: any)=>{
-                window.open(pProps.href, '_blank');
+      a: (pProps: any) => (
+        <a
+          {...pProps}
+          onClick={(e) => {
+            e.preventDefault();
+            // 向小程序传递消息
+            try {
+              if (pProps.href.startsWith('https://ysapplink') && ys) {
+                let navigateTo = getQueryParamFromUrl(pProps.href, 'navigateTo');
+                let goods_no = getQueryParamFromUrl(pProps.href, 'goods_no');
+                let source = getQueryParamFromUrl(pProps.href, 'source');
+                ys.navigateTo(navigateTo, {
+                  goods_no: goods_no ? goods_no : '',
+                  replenishmentSource: source ? source : '',
+
+                  goods_id: ''
+                });
+              } else {
+                const h5Manager = tt?.miniProgram?.createMessageManager();
+                h5Manager?.transferMessage({
+                  data: { test: 'b' },
+                  success: (res: any) => {
+                    // 判断链接是否包含applink，如果不是，需要进行转换
+                    if (!pProps.href.startsWith('https://applink')) {
+                      window.open(
+                        'https://applink.feishu.cn/client/web_url/open?mode=window&url=' +
+                          encodeURIComponent(pProps.href),
+                        '_blank'
+                      );
+                    } else {
+                      window.open(pProps.href, '_blank');
+                    }
+                  },
+                  fail: (res: any) => {
+                    window.open(pProps.href, '_blank');
+                  }
+                });
               }
-          })
-        } catch (error) {
-          window.open(pProps.href, '_blank');
-        }
-      }}></a>,
+            } catch (error) {
+              window.open(pProps.href, '_blank');
+            }
+          }}
+        ></a>
+      )
     }),
     []
   );

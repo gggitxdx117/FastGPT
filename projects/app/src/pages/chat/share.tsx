@@ -33,6 +33,7 @@ import { InitChatResponse } from '@/global/core/chat/api';
 import { defaultChatData } from '@/global/core/chat/constants';
 import { useMount } from 'ahooks';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
+import Script from 'next/script';
 
 declare global {
   var tt: any;
@@ -259,6 +260,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
 
   return (
     <>
+      <Script src="/js/yishou-js-sdk.min.js"></Script>
       <NextHead title={appName} desc={appIntro} icon={appAvatar} />
 
       <PageContainer
