@@ -14,7 +14,7 @@ const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
   const router = useRouter();
   const { clearLocalHistory } = useShareChatStore();
 
-  return history.length > 0 ? (
+  return history.length > 0 || 1 ? (
     <MyMenu
       Button={
         <IconButton

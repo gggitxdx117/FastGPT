@@ -54,7 +54,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
   const {
     shareId = '',
     chatId = localChatId,
-    showHistory = '1',
+    showHistory = '0',
     showHead = '1',
     authToken,
     avatarUrl = '',
