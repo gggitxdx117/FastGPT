@@ -1,14 +1,16 @@
 import type {
   StoreNodeItemType,
-  FlowNodeItemType,
-  FlowNodeTemplateType
-} from '@fastgpt/global/core/workflow/type/index.d';
+  FlowNodeItemType
+} from '@fastgpt/global/core/workflow/type/node.d';
+import type { FlowNodeTemplateType } from '@fastgpt/global/core/workflow/type/node';
 import type { Edge, Node, XYPosition } from 'reactflow';
 import { moduleTemplatesFlat } from '@fastgpt/global/core/workflow/template/constants';
 import {
   EDGE_TYPE,
   FlowNodeInputTypeEnum,
-  FlowNodeTypeEnum
+  FlowNodeOutputTypeEnum,
+  FlowNodeTypeEnum,
+  defaultNodeVersion
 } from '@fastgpt/global/core/workflow/node/constant';
 import { EmptyNode } from '@fastgpt/global/core/workflow/template/system/emptyNode';
 import { StoreEdgeItemType } from '@fastgpt/global/core/workflow/type/edge';
@@ -33,6 +35,7 @@ import { IfElseListItemType } from '@fastgpt/global/core/workflow/template/syste
 import { VariableConditionEnum } from '@fastgpt/global/core/workflow/template/system/ifElse/constant';
 import { AppChatConfigType } from '@fastgpt/global/core/app/type';
 import { cloneDeep, isEqual } from 'lodash';
+import { getInputComponentProps } from '@fastgpt/global/core/workflow/node/io/utils';
 
 export const nodeTemplate2FlowNode = ({
   template,
@@ -69,40 +72,75 @@ export const storeNode2FlowNode = ({
     moduleTemplatesFlat.find((template) => template.flowNodeType === storeNode.flowNodeType) ||
     EmptyNode;
 
+  const templateInputs = template.inputs.filter((input) => !input.canEdit);
+  const templateOutputs = template.outputs.filter(
+    (output) => output.type !== FlowNodeOutputTypeEnum.dynamic
+  );
+  const dynamicInput = template.inputs.find(
+    (input) => input.renderTypeList[0] === FlowNodeInputTypeEnum.addInputParam
+  );
+
   // replace item data
-  const moduleItem: FlowNodeItemType = {
+  const nodeItem: FlowNodeItemType = {
     ...template,
     ...storeNode,
-    avatar: storeNode?.avatar || template?.avatar,
-    inputs: storeNode.inputs
-      .map((storeInput) => {
-        const templateInput =
-          template.inputs.find((item) => item.key === storeInput.key) || storeInput;
+    version: storeNode.version ?? template.version ?? defaultNodeVersion,
+
+    /* 
+      Inputs and outputs, New fields are added, not reduced
+    */
+    inputs: templateInputs
+      .map<FlowNodeInputItemType>((templateInput) => {
+        const storeInput =
+          storeNode.inputs.find((item) => item.key === templateInput.key) || templateInput;
+
         return {
-          ...templateInput,
           ...storeInput,
-          renderTypeList: templateInput.renderTypeList
+          ...templateInput,
+
+          selectedTypeIndex: storeInput.selectedTypeIndex ?? templateInput.selectedTypeIndex,
+          value: storeInput.value ?? templateInput.value,
+          label: storeInput.label ?? templateInput.label
         };
       })
       .concat(
-        template.inputs.filter((item) => !storeNode.inputs.some((input) => input.key === item.key))
+        /* Concat dynamic inputs */
+        storeNode.inputs
+          .filter((item) => !templateInputs.find((input) => input.key === item.key))
+          .map((item) => {
+            if (!dynamicInput) return item;
+
+            return {
+              ...item,
+              ...getInputComponentProps(dynamicInput)
+            };
+          })
       ),
-    outputs: storeNode.outputs.map((storeOutput) => {
-      const templateOutput =
-        template.outputs.find((item) => item.key === storeOutput.key) || storeOutput;
-      return {
-        ...storeOutput,
-        ...templateOutput,
-        value: storeOutput.value
-      };
-    }),
-    version: storeNode.version || '481'
+    outputs: templateOutputs
+      .map<FlowNodeOutputItemType>((templateOutput) => {
+        const storeOutput =
+          template.outputs.find((item) => item.key === templateOutput.key) || templateOutput;
+
+        return {
+          ...storeOutput,
+          ...templateOutput,
+
+          id: storeOutput.id ?? templateOutput.id,
+          label: storeOutput.label ?? templateOutput.label,
+          value: storeOutput.value ?? templateOutput.value
+        };
+      })
+      .concat(
+        storeNode.outputs.filter(
+          (item) => !templateOutputs.find((output) => output.key === item.key)
+        )
+      )
   };
 
   return {
     id: storeNode.nodeId,
     type: storeNode.flowNodeType,
-    data: moduleItem,
+    data: nodeItem,
     selected,
     position: storeNode.position || { x: 0, y: 0 }
   };
@@ -348,36 +386,41 @@ export const getWorkflowGlobalVariables = ({
 
 export type CombinedItemType = Partial<FlowNodeInputItemType> & Partial<FlowNodeOutputItemType>;
 
-export const updateFlowNodeVersion = (
+/* Reset node to latest version */
+export const getLatestNodeTemplate = (
   node: FlowNodeItemType,
   template: FlowNodeTemplateType
 ): FlowNodeItemType => {
-  function updateArrayBasedOnTemplate<T extends FlowNodeInputItemType | FlowNodeOutputItemType>(
-    nodeArray: T[],
-    templateArray: T[]
-  ): T[] {
-    return templateArray.map((templateItem) => {
-      const nodeItem = nodeArray.find((item) => item.key === templateItem.key);
-      if (nodeItem) {
-        return { ...templateItem, ...nodeItem } as T;
-      }
-      return { ...templateItem };
-    });
-  }
-
   const updatedNode: FlowNodeItemType = {
     ...node,
     ...template,
+    inputs: template.inputs.map((templateItem) => {
+      const nodeItem = node.inputs.find((item) => item.key === templateItem.key);
+      if (nodeItem) {
+        return {
+          ...templateItem,
+          value: nodeItem.value,
+          selectedTypeIndex: nodeItem.selectedTypeIndex,
+          valueType: nodeItem.valueType
+        };
+      }
+      return { ...templateItem };
+    }),
+    outputs: template.outputs.map((templateItem) => {
+      const nodeItem = node.outputs.find((item) => item.key === templateItem.key);
+      if (nodeItem) {
+        return {
+          ...templateItem,
+          id: nodeItem.id,
+          value: nodeItem.value,
+          valueType: nodeItem.valueType
+        };
+      }
+      return { ...templateItem };
+    }),
     name: node.name,
     intro: node.intro
   };
-
-  if (node.inputs && template.inputs) {
-    updatedNode.inputs = updateArrayBasedOnTemplate(node.inputs, template.inputs);
-  }
-  if (node.outputs && template.outputs) {
-    updatedNode.outputs = updateArrayBasedOnTemplate(node.outputs, template.outputs);
-  }
 
   return updatedNode;
 };
@@ -424,41 +467,46 @@ export const compareWorkflow = (workflow1: WorkflowType, workflow2: WorkflowType
     return false;
   }
 
-  const node1 = clone1.nodes.filter(Boolean).map((node) => ({
-    flowNodeType: node.flowNodeType,
-    inputs: node.inputs.map((input) => ({
-      ...input,
-      value: input.value ?? undefined
-    })),
-    outputs: node.outputs.map((input) => ({
-      ...input,
-      value: input.value ?? undefined
-    })),
-    name: node.name,
-    intro: node.intro,
-    avatar: node.avatar,
-    version: node.version,
-    position: node.position
-  }));
-  const node2 = clone2.nodes.filter(Boolean).map((node) => ({
-    flowNodeType: node.flowNodeType,
-    inputs: node.inputs.map((input) => ({
-      ...input,
-      value: input.value ?? undefined
-    })),
-    outputs: node.outputs.map((input) => ({
-      ...input,
-      value: input.value ?? undefined
-    })),
-    name: node.name,
-    intro: node.intro,
-    avatar: node.avatar,
-    version: node.version,
-    position: node.position
-  }));
+  const formatNodes = (nodes: StoreNodeItemType[]) => {
+    return nodes
+      .filter((node) => {
+        if (!node) return;
+        if ([FlowNodeTypeEnum.systemConfig].includes(node.flowNodeType)) return;
+
+        return true;
+      })
+      .map((node) => ({
+        flowNodeType: node.flowNodeType,
+        inputs: node.inputs.map((input) => ({
+          key: input.key,
+          selectedTypeIndex: input.selectedTypeIndex ?? 0,
+          renderTypeLis: input.renderTypeList,
+          valueType: input.valueType,
+          value: input.value ?? undefined
+        })),
+        outputs: node.outputs.map((item) => ({
+          key: item.key,
+          type: item.type,
+          value: item.value ?? undefined
+        })),
+        name: node.name,
+        intro: node.intro,
+        avatar: node.avatar,
+        version: node.version,
+        position: node.position
+      }));
+  };
+  const node1 = formatNodes(clone1.nodes);
+  const node2 = formatNodes(clone2.nodes);
 
   // console.log(node1);
   // console.log(node2);
+
+  node1.forEach((node, i) => {
+    if (!isEqual(node, node2[i])) {
+      console.log('node not equal');
+    }
+  });
 
   return isEqual(node1, node2);
 };

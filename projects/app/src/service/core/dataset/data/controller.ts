@@ -34,7 +34,6 @@ export async function insertData2Dataset({
   session?: ClientSession;
 }) {
   if (!q || !datasetId || !collectionId || !model) {
-    console.log(q, a, datasetId, collectionId, model);
     return Promise.reject('q, datasetId, collectionId, model is required');
   }
   if (String(teamId) === String(tmbId)) {
@@ -115,7 +114,7 @@ export async function insertData2Dataset({
  */
 export async function updateData2Dataset({
   dataId,
-  q,
+  q = '',
   a,
   indexes,
   model

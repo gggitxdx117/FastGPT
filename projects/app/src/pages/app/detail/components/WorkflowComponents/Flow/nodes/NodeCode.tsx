@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { NodeProps } from 'reactflow';
 import NodeCard from './render/NodeCard';
-import { FlowNodeItemType } from '@fastgpt/global/core/workflow/type/index.d';
+import { FlowNodeItemType } from '@fastgpt/global/core/workflow/type/node.d';
 import Container from '../components/Container';
 import RenderInput from './render/RenderInput';
 import { NodeInputKeyEnum } from '@fastgpt/global/core/workflow/constants';
@@ -16,7 +16,8 @@ import CodeEditor from '@fastgpt/web/components/common/Textarea/CodeEditor';
 import { Box, Flex } from '@chakra-ui/react';
 import { useI18n } from '@/web/context/I18n';
 import { useConfirm } from '@fastgpt/web/hooks/useConfirm';
-import { JS_TEMPLATE } from '@fastgpt/global/core/workflow/template/system/sandbox/constants';
+import { getLatestNodeTemplate } from '@/web/core/workflow/utils';
+import { CodeNode } from '@fastgpt/global/core/workflow/template/system/sandbox';
 
 const NodeCode = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
   const { t } = useTranslation();
@@ -24,7 +25,9 @@ const NodeCode = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
   const { nodeId, inputs, outputs } = data;
   const splitToolInputs = useContextSelector(WorkflowContext, (ctx) => ctx.splitToolInputs);
   const onChangeNode = useContextSelector(WorkflowContext, (v) => v.onChangeNode);
-  const { toolInputs, commonInputs } = splitToolInputs(inputs, nodeId);
+  const onResetNode = useContextSelector(WorkflowContext, (v) => v.onResetNode);
+
+  const { isTool, commonInputs } = splitToolInputs(inputs, nodeId);
   const { ConfirmModal, openConfirm } = useConfirm({
     content: workflowT('code.Reset template confirm')
   });
@@ -41,14 +44,9 @@ const NodeCode = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
                 color={'primary.500'}
                 fontSize={'xs'}
                 onClick={openConfirm(() => {
-                  onChangeNode({
-                    nodeId,
-                    type: 'updateInput',
-                    key: item.key,
-                    value: {
-                      ...item,
-                      value: JS_TEMPLATE
-                    }
+                  onResetNode({
+                    id: nodeId,
+                    node: getLatestNodeTemplate(data, CodeNode)
                   });
                 })}
               >
@@ -79,11 +77,10 @@ const NodeCode = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
 
   return (
     <NodeCard minW={'400px'} selected={selected} {...data}>
-      {toolInputs.length > 0 && (
+      {isTool && (
         <>
           <Container>
-            <IOTitle text={t('core.module.tool.Tool input')} />
-            <RenderToolInput nodeId={nodeId} inputs={toolInputs} />
+            <RenderToolInput nodeId={nodeId} inputs={inputs} />
           </Container>
         </>
       )}

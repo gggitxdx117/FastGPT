@@ -140,7 +140,7 @@ const ChatHistorySlider = ({
             fontSize={'sm'}
             onClick={() =>
               canRouteToDetail &&
-              router.replace({
+              router.push({
                 pathname: '/app/detail',
                 query: { appId }
               })
@@ -164,17 +164,22 @@ const ChatHistorySlider = ({
               px: 1
             }}
             list={[
-              { label: t('core.chat.Recent use'), value: TabEnum.recently },
-              ...(!isTeamChat ? [{ label: t('App'), value: TabEnum.app }] : []),
+              ...(isTeamChat
+                ? [{ label: t('App'), value: TabEnum.recently }]
+                : [
+                    { label: t('core.chat.Recent use'), value: TabEnum.recently },
+                    { label: t('App'), value: TabEnum.app }
+                  ]),
               { label: t('core.chat.History'), value: TabEnum.history }
             ]}
             value={currentTab}
             onChange={setCurrentTab}
           />
         )}
+
         <Button
           variant={'whitePrimary'}
-          flex={['0 0 auto', 1]}
+          flex={[appId ? '0 0 auto' : 1, 1]}
           h={'100%'}
           color={'primary.600'}
           borderRadius={'xl'}
@@ -184,8 +189,8 @@ const ChatHistorySlider = ({
         >
           {t('core.chat.New Chat')}
         </Button>
-
-        {(isPc || !showApps) && (
+        {/* Clear */}
+        {isPc && (
           <IconButton
             ml={3}
             h={'100%'}

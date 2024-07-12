@@ -1,4 +1,7 @@
-import { PushDatasetDataChunkProps } from '@fastgpt/global/core/dataset/api';
+import {
+  PushDatasetDataChunkProps,
+  PushDatasetDataResponse
+} from '@fastgpt/global/core/dataset/api';
 import {
   DatasetSearchModeEnum,
   DatasetSourceReadTypeEnum,
@@ -31,19 +34,14 @@ export type RebuildEmbeddingProps = {
 };
 
 /* ================= collection ===================== */
+export type CreateCollectionResponse = Promise<{
+  collectionId: string;
+  results: PushDatasetDataResponse;
+}>;
 
 /* ================= data ===================== */
 export type InsertOneDatasetDataProps = PushDatasetDataChunkProps & {
   collectionId: string;
-};
-
-export type UpdateDatasetDataProps = {
-  id: string;
-  q?: string; // embedding content
-  a?: string; // bonus content
-  indexes: (Omit<DatasetDataIndexItemType, 'dataId'> & {
-    dataId?: string; // pg data id
-  })[];
 };
 
 export type GetTrainingQueueProps = {

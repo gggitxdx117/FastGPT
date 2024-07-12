@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useTransition } from 'react';
+import React, { useMemo, useTransition } from 'react';
 import {
   Box,
   Flex,
@@ -9,8 +9,7 @@ import {
   Button,
   HStack
 } from '@chakra-ui/react';
-import { AddIcon, SmallAddIcon } from '@chakra-ui/icons';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { SmallAddIcon } from '@chakra-ui/icons';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import type { AppSimpleEditFormType } from '@fastgpt/global/core/app/type.d';
 import { useRouter } from 'next/router';
@@ -30,7 +29,6 @@ import type { SettingAIDataType } from '@fastgpt/global/core/app/type.d';
 import DeleteIcon, { hoverDeleteStyles } from '@fastgpt/web/components/common/Icon/delete';
 import { TTSTypeEnum } from '@/web/core/app/constants';
 import { getSystemVariables } from '@/web/core/app/utils';
-import { useUpdate } from 'ahooks';
 import { useI18n } from '@/web/context/I18n';
 import { useContextSelector } from 'use-context-selector';
 import { AppContext } from '@/pages/app/detail/components/context';
@@ -50,7 +48,7 @@ const ScheduledTriggerConfig = dynamic(
 const WelcomeTextConfig = dynamic(() => import('@/components/core/app/WelcomeTextConfig'));
 
 const BoxStyles: BoxProps = {
-  px: 5,
+  px: [4, 6],
   py: '16px',
   borderBottomWidth: '1px',
   borderBottomColor: 'borderColor.low'
@@ -468,7 +466,7 @@ const EditForm = ({
           onRemoveTool={(e) => {
             setAppForm((state) => ({
               ...state,
-              selectedTools: state.selectedTools.filter((item) => item.id !== e.id)
+              selectedTools: state.selectedTools.filter((item) => item.pluginId !== e.id)
             }));
           }}
           onClose={onCloseToolsSelect}

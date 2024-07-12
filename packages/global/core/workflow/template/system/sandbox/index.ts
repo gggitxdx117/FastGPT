@@ -9,7 +9,7 @@ import {
   FlowNodeOutputTypeEnum,
   FlowNodeTypeEnum
 } from '../../../node/constant';
-import { FlowNodeTemplateType } from '../../../type';
+import { FlowNodeTemplateType } from '../../../type/node';
 import { getHandleConfig } from '../../utils';
 import { Input_Template_DynamicInput } from '../../input';
 import { Output_Template_AddOutput } from '../../output';
@@ -30,10 +30,37 @@ export const CodeNode: FlowNodeTemplateType = {
     {
       ...Input_Template_DynamicInput,
       description: '这些变量会作为代码的运行的输入参数',
-      editField: {
-        key: true,
-        valueType: true
+      customInputConfig: {
+        selectValueTypeList: Object.values(WorkflowIOValueTypeEnum),
+        showDescription: false,
+        showDefaultValue: true
       }
+    },
+    {
+      renderTypeList: [FlowNodeInputTypeEnum.reference],
+      valueType: WorkflowIOValueTypeEnum.string,
+      canEdit: true,
+      key: 'data1',
+      label: 'data1',
+      customInputConfig: {
+        selectValueTypeList: Object.values(WorkflowIOValueTypeEnum),
+        showDescription: false,
+        showDefaultValue: true
+      },
+      required: true
+    },
+    {
+      renderTypeList: [FlowNodeInputTypeEnum.reference],
+      valueType: WorkflowIOValueTypeEnum.string,
+      canEdit: true,
+      key: 'data2',
+      label: 'data2',
+      customInputConfig: {
+        selectValueTypeList: Object.values(WorkflowIOValueTypeEnum),
+        showDescription: false,
+        showDefaultValue: true
+      },
+      required: true
     },
     {
       key: NodeInputKeyEnum.codeType,
@@ -51,7 +78,7 @@ export const CodeNode: FlowNodeTemplateType = {
   outputs: [
     {
       ...Output_Template_AddOutput,
-      description: '将代码中 return 的对象作为输出，传递给后续的节点'
+      description: '将代码中 return 的对象作为输出，传递给后续的节点。变量名需要对应 return 的 key'
     },
     {
       id: NodeOutputKeyEnum.rawResponse,

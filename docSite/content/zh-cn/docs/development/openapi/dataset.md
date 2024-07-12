@@ -13,7 +13,7 @@ weight: 853
 
 
 
-## 创建训练订单(4.6.9地址发生改动)
+## 创建训练订单
 
 {{< tabs tabTotal="2" >}}
 {{< tab tabName="请求示例" >}}
@@ -26,6 +26,7 @@ curl --location --request POST 'https://api.fastgpt.in/api/support/wallet/usage/
 --header 'Authorization: Bearer {{apikey}}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
+    "datasetId": "知识库 ID",
     "name": "可选，自定义订单名称，例如：文档训练-fastgpt.docx"
 }'
 ```
@@ -127,8 +128,12 @@ curl --location --request POST 'http://localhost:3000/api/core/dataset/create' \
 {{< markdownify >}}
 
 ```bash
-curl --location --request GET 'http://localhost:3000/api/core/dataset/list?parentId=' \
---header 'Authorization: Bearer {{authorization}}' \
+curl --location --request POST 'http://localhost:3000/api/core/dataset/list?parentId=' \
+--header 'Authorization: Bearer xxxx' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "parentId":""
+}'
 ```
 
 {{< /markdownify >}}
@@ -138,7 +143,7 @@ curl --location --request GET 'http://localhost:3000/api/core/dataset/list?paren
 {{< markdownify >}}
 
 {{% alert icon=" " context="success" %}}
-- parentId - 父级ID，不传或为空，代表获取根目录下的知识库
+- parentId - 父级ID，传空字符串或者null，代表获取根目录下的知识库
 {{% /alert %}}
 
 {{< /markdownify >}}
