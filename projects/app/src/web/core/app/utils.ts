@@ -722,6 +722,12 @@ export const getSystemVariables = (t: TFunction): EditorVariablePickerType[] => 
       valueType: WorkflowIOValueTypeEnum.string
     },
     {
+      key: 'customInputs',
+      label: '用户的输入内容',
+      required: true,
+      valueType: WorkflowIOValueTypeEnum.string
+    },
+    {
       key: 'responseChatItemId',
       label: t('core.module.http.ResponseChatItemId'),
       valueType: WorkflowIOValueTypeEnum.string

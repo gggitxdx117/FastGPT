@@ -14,7 +14,8 @@ import {
   GPTMessages2Chats,
   chats2GPTMessages,
   getSystemPrompt,
-  runtimePrompt2ChatsValue
+  runtimePrompt2ChatsValue,
+  chatValue2RuntimePrompt
 } from '@fastgpt/global/core/chat/adapt';
 import { formatModelChars2Points } from '../../../../../support/wallet/usage/utils';
 import { getHistoryPreview } from '@fastgpt/global/core/chat/utils';
@@ -33,9 +34,9 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
     runtimeNodes,
     runtimeEdges,
     histories,
+    query,
     params: { model, systemPrompt, userChatInput, history = 6 }
   } = props;
-
   const toolModel = getLLMModel(model);
   const chatHistories = getHistories(history, histories);
 
@@ -57,6 +58,8 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
         toolParams
       };
     });
+  
+  const { files } = chatValue2RuntimePrompt(query);
 
   const messages: ChatItemType[] = [
     ...getSystemPrompt(systemPrompt),
@@ -65,7 +68,7 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
       obj: ChatRoleEnum.Human,
       value: runtimePrompt2ChatsValue({
         text: userChatInput,
-        files: []
+        files: files
       })
     }
   ];

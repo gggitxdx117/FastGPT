@@ -198,7 +198,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           responseChatItemId,
           runtimeNodes: storeNodes2RuntimeNodes(nodes, getDefaultEntryNodeIds(nodes)),
           runtimeEdges: initWorkflowEdgeStatus(edges),
-          variables,
+          variables: {...variables, ...{customInputs: JSON.stringify({text, files})}},
           query: removeEmptyUserInput(question.value),
           histories: newHistories,
           stream,
