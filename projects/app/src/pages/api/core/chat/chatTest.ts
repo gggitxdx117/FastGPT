@@ -18,6 +18,7 @@ import { RuntimeEdgeItemType } from '@fastgpt/global/core/workflow/type/edge';
 import { RuntimeNodeItemType } from '@fastgpt/global/core/workflow/runtime/type';
 import { removeEmptyUserInput } from '@fastgpt/global/core/chat/utils';
 import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
+import { chatValue2RuntimePrompt } from '@fastgpt/global/core/chat/adapt';
 
 export type Props = {
   history: ChatItemType[];
@@ -71,6 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // auth balance
     const { user } = await getUserChatInfoAndAuthTeamPoints(tmbId);
 
+    const { text, files } = chatValue2RuntimePrompt(prompt);
+  
     /* start process */
     const { flowResponses, flowUsages } = await dispatchWorkFlow({
       res,
@@ -81,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       app,
       runtimeNodes: nodes,
       runtimeEdges: edges,
-      variables,
+      variables: {...variables, ...{customInputs: JSON.stringify({text, files})}},
       query: removeEmptyUserInput(prompt),
       histories: history,
       stream: true,
