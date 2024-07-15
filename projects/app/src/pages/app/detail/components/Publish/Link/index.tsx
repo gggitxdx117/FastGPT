@@ -101,14 +101,14 @@ const Share = ({ appId }: { appId: string; type: PublishChannelEnum }) => {
           <Thead>
             <Tr>
               <Th>{t('common.Name')}</Th>
-              {feConfigs?.isPlus && (
+              {(feConfigs?.isPlus || 1) && (
                 <>
                   <Th>{t('common.Expired Time')}</Th>
                 </>
               )}
               <Th>{t('support.outlink.Usage points')}</Th>
               <Th>{t('core.app.share.Is response quote')}</Th>
-              {feConfigs?.isPlus && (
+              {(feConfigs?.isPlus || 1) && (
                 <>
                   <Th>{t('core.app.share.Ip limit title')}</Th>
                   <Th>{t('core.app.share.Role check')}</Th>
@@ -122,7 +122,7 @@ const Share = ({ appId }: { appId: string; type: PublishChannelEnum }) => {
             {shareChatList.map((item) => (
               <Tr key={item._id}>
                 <Td>{item.name}</Td>
-                {feConfigs?.isPlus && (
+                {(feConfigs?.isPlus || 1) && (
                   <>
                     <Td>
                       {item.limit?.expiredTime
@@ -133,7 +133,7 @@ const Share = ({ appId }: { appId: string; type: PublishChannelEnum }) => {
                 )}
                 <Td>
                   {Math.round(item.usagePoints)}
-                  {feConfigs?.isPlus
+                  {(feConfigs?.isPlus || 1)
                     ? `${
                         item.limit?.maxUsagePoints && item.limit.maxUsagePoints > -1
                           ? ` / ${item.limit.maxUsagePoints}`
@@ -142,7 +142,7 @@ const Share = ({ appId }: { appId: string; type: PublishChannelEnum }) => {
                     : ''}
                 </Td>
                 <Td>{item.responseDetail ? '✔' : '✖'}</Td>
-                {feConfigs?.isPlus && (
+                {(feConfigs?.isPlus || 1) && (
                   <>
                     <Td>{item?.limit?.QPM || '-'}</Td>
 
@@ -310,7 +310,7 @@ function EditLinkModal({
             })}
           />
         </Flex>
-        {feConfigs?.isPlus && (
+        {(feConfigs?.isPlus || 1) && (
           <>
             <Flex alignItems={'center'} mt={4}>
               <FormLabel flex={'0 0 90px'} alignItems={'center'}>

@@ -9,7 +9,7 @@ import { getChatItems } from '@fastgpt/service/core/chat/controller';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
 import { authOutLink } from '@/service/support/permission/auth/outLink';
 import { MongoApp } from '@fastgpt/service/core/app/schema';
-import { filterPublicNodeResponseData } from '@fastgpt/global/core/chat/utils';
+import { filterPublicNodeResponseData, filterPublicNodeToolDetail } from '@fastgpt/global/core/chat/utils';
 import { AppErrEnum } from '@fastgpt/global/common/error/code/app';
 import { MongoChat } from '@fastgpt/service/core/chat/chatSchema';
 import { ChatErrEnum } from '@fastgpt/global/common/error/code/chat';
@@ -59,6 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     histories.forEach((item) => {
       if (item.obj === ChatRoleEnum.AI) {
         item.responseData = filterPublicNodeResponseData({ flowResponses: item.responseData });
+        item.value = filterPublicNodeToolDetail({ input: item.value, responseDetail: shareChat.responseDetail });
       }
     });
 

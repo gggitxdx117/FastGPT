@@ -1,7 +1,7 @@
 import { DispatchNodeResponseType } from '../workflow/runtime/type';
 import { FlowNodeTypeEnum } from '../workflow/node/constant';
 import { ChatItemValueTypeEnum, ChatRoleEnum } from './constants';
-import { ChatHistoryItemResType, ChatItemType, UserChatItemValueItemType } from './type.d';
+import { ChatHistoryItemResType, ChatItemType, UserChatItemValueItemType, AIChatItemValueItemType } from './type.d';
 
 // Concat 2 -> 1, and sort by role
 export const concatHistories = (histories1: ChatItemType[], histories2: ChatItemType[]) => {
@@ -87,6 +87,22 @@ export const filterPublicNodeResponseData = ({
       }
       return obj as ChatHistoryItemResType;
     });
+};
+
+
+export const filterPublicNodeToolDetail = ({
+  input = [],
+  responseDetail = true
+}: {
+  input?: AIChatItemValueItemType[];
+  responseDetail?: boolean;
+}) => {
+  return input.filter((item) => {
+    if (item.type === ChatItemValueTypeEnum.tool && !responseDetail) {
+      return false;
+    }
+    return true;
+  });
 };
 
 export const removeEmptyUserInput = (input: UserChatItemValueItemType[]) => {

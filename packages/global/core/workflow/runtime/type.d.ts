@@ -32,6 +32,7 @@ export type ChatDispatchProps = {
   query: UserChatItemValueItemType[]; // trigger query
   stream: boolean;
   detail: boolean; // response detail
+  responseDetail: boolean;
   maxRunTimes: number;
   isToolCall?: boolean;
 };

@@ -49,7 +49,7 @@ export const runToolWithToolChoice = async (
   },
   response?: RunToolResponse
 ): Promise<RunToolResponse> => {
-  const { toolModel, toolNodes, messages, res, runtimeNodes, detail = false, node, stream } = props;
+  const { toolModel, toolNodes, messages, res, runtimeNodes, detail = false, responseDetail = true, node, stream } = props;
   const assistantResponses = response?.assistantResponses || [];
 
   const tools: ChatCompletionTool[] = toolNodes.map((item) => {
@@ -140,6 +140,7 @@ export const runToolWithToolChoice = async (
       return streamResponse({
         res,
         detail,
+        responseDetail,
         toolNodes,
         stream: aiResponse
       });
@@ -209,7 +210,7 @@ export const runToolWithToolChoice = async (
           content: stringToolResponse
         };
 
-        if (stream && detail) {
+        if (stream && detail && responseDetail === true) {
           responseWrite({
             res,
             event: SseResponseEventEnum.toolResponse,
@@ -331,11 +332,13 @@ export const runToolWithToolChoice = async (
 async function streamResponse({
   res,
   detail,
+  responseDetail,
   toolNodes,
   stream
 }: {
   res: NextApiResponse;
   detail: boolean;
+  responseDetail: boolean;
   toolNodes: ToolNodeItemType[];
   stream: StreamChatType;
 }) {
@@ -389,7 +392,7 @@ async function streamResponse({
               toolAvatar: toolNode.avatar
             });
 
-            if (detail) {
+            if (detail && responseDetail === true) {
               responseWrite({
                 write,
                 event: SseResponseEventEnum.toolCall,
@@ -421,7 +424,7 @@ async function streamResponse({
       if (currentTool) {
         currentTool.function.arguments += arg;
 
-        if (detail) {
+        if (detail && responseDetail === true) {
           responseWrite({
             write,
             event: SseResponseEventEnum.toolParams,

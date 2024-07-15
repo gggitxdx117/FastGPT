@@ -100,6 +100,7 @@ export async function dispatchWorkFlow(data: Props): Promise<DispatchFlowRespons
     user,
     stream = false,
     detail = false,
+    responseDetail = true,
     ...props
   } = data;
 
@@ -330,6 +331,7 @@ export async function dispatchWorkFlow(data: Props): Promise<DispatchFlowRespons
       user,
       stream,
       detail,
+      responseDetail,
       node,
       runtimeNodes,
       runtimeEdges,

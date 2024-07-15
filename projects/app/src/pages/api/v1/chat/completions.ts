@@ -203,6 +203,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           histories: newHistories,
           stream,
           detail,
+          responseDetail: responseDetail === true,
           maxRunTimes: 200
         });
       }
