@@ -31,6 +31,7 @@ import { ImportDataSourceEnum } from '@fastgpt/global/core/dataset/constants';
 import { useContextSelector } from 'use-context-selector';
 import { CollectionPageContext } from './Context';
 import { DatasetPageContext } from '@/web/core/dataset/context/datasetPageContext';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
 
 const FileSourceSelector = dynamic(() => import('../Import/components/FileSourceSelector'));
 
@@ -42,7 +43,7 @@ const Header = ({}: {}) => {
 
   const router = useRouter();
   const { parentId = '' } = router.query as { parentId: string };
-  const { isPc } = useSystemStore();
+  const { isPc } = useSystem();
 
   const lastSearch = useRef('');
   const { searchText, setSearchText, total, getData, pageNum, onOpenWebsiteModal } =
@@ -64,8 +65,8 @@ const Header = ({}: {}) => {
   const { editFolderData, setEditFolderData } = useEditFolder();
   const { onOpenModal: onOpenCreateVirtualFileModal, EditModal: EditCreateVirtualFileModal } =
     useEditTitle({
-      title: t('dataset.Create manual collection'),
-      tip: t('dataset.Manual collection Tip'),
+      title: t('common:dataset.Create manual collection'),
+      tip: t('common:dataset.Manual collection Tip'),
       canEmpty: false
     });
   const {
@@ -105,8 +106,8 @@ const Header = ({}: {}) => {
       setLoading(false);
     },
 
-    successToast: t('common.Create Success'),
-    errorToast: t('common.Create Failed')
+    successToast: t('common:common.Create Success'),
+    errorToast: t('common:common.Create Failed')
   });
 
   return (
@@ -120,11 +121,11 @@ const Header = ({}: {}) => {
           FirstPathDom={
             <>
               <Box fontWeight={'bold'} fontSize={['sm', 'md']}>
-                {t(DatasetTypeMap[datasetDetail?.type]?.collectionLabel)}({total})
+                {t(DatasetTypeMap[datasetDetail?.type]?.collectionLabel as any)}({total})
               </Box>
               {datasetDetail?.websiteConfig?.url && (
                 <Flex fontSize={'sm'}>
-                  {t('core.dataset.website.Base Url')}:
+                  {t('common:core.dataset.website.Base Url')}:
                   <Link
                     href={datasetDetail.websiteConfig.url}
                     target="_blank"
@@ -157,7 +158,7 @@ const Header = ({}: {}) => {
             w={['100%', '250px']}
             size={'sm'}
             h={'36px'}
-            placeholder={t('common.Search') || ''}
+            placeholder={t('common:common.Search') || ''}
             value={searchText}
             leftIcon={
               <MyIcon
@@ -210,7 +211,7 @@ const Header = ({}: {}) => {
                     h={['28px', '35px']}
                   >
                     <MyIcon name={'common/importLight'} mr={2} w={'14px'} />
-                    <Box>{t('dataset.collections.Create And Import')}</Box>
+                    <Box>{t('common:dataset.collections.Create And Import')}</Box>
                   </Flex>
                 </MenuButton>
               }
@@ -221,7 +222,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'common/folderFill'} w={'20px'} mr={2} />
-                          {t('Folder')}
+                          {t('common:Folder')}
                         </Flex>
                       ),
                       onClick: () => setEditFolderData({})
@@ -230,7 +231,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'core/dataset/manualCollection'} mr={2} w={'20px'} />
-                          {t('core.dataset.Manual collection')}
+                          {t('common:core.dataset.Manual collection')}
                         </Flex>
                       ),
                       onClick: () => {
@@ -246,7 +247,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'core/dataset/fileCollection'} mr={2} w={'20px'} />
-                          {t('core.dataset.Text collection')}
+                          {t('common:core.dataset.Text collection')}
                         </Flex>
                       ),
                       onClick: onOpenFileSourceSelector
@@ -255,7 +256,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'core/dataset/tableCollection'} mr={2} w={'20px'} />
-                          {t('core.dataset.Table collection')}
+                          {t('common:core.dataset.Table collection')}
                         </Flex>
                       ),
                       onClick: () =>
@@ -277,7 +278,7 @@ const Header = ({}: {}) => {
               {datasetDetail?.websiteConfig?.url ? (
                 <Flex alignItems={'center'}>
                   {datasetDetail.status === DatasetStatusEnum.active && (
-                    <Button onClick={onOpenWebsiteModal}>{t('common.Config')}</Button>
+                    <Button onClick={onOpenWebsiteModal}>{t('common:common.Config')}</Button>
                   )}
                   {datasetDetail.status === DatasetStatusEnum.syncing && (
                     <Flex
@@ -297,13 +298,15 @@ const Header = ({}: {}) => {
                         mt={'1px'}
                       ></Box>
                       <Box ml={2} color={'myGray.600'}>
-                        {t('core.dataset.status.syncing')}
+                        {t('common:core.dataset.status.syncing')}
                       </Box>
                     </Flex>
                   )}
                 </Flex>
               ) : (
-                <Button onClick={onOpenWebsiteModal}>{t('core.dataset.Set Website Config')}</Button>
+                <Button onClick={onOpenWebsiteModal}>
+                  {t('common:core.dataset.Set Website Config')}
+                </Button>
               )}
             </>
           )}
@@ -329,7 +332,7 @@ const Header = ({}: {}) => {
                     h={['28px', '35px']}
                   >
                     <MyIcon name={'common/importLight'} mr={2} w={'14px'} />
-                    <Box>{t('dataset.collections.Create And Import')}</Box>
+                    <Box>{t('common:dataset.collections.Create And Import')}</Box>
                   </Flex>
                 </MenuButton>
               }
@@ -340,7 +343,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'common/folderFill'} w={'20px'} mr={2} />
-                          {t('Folder')}
+                          {t('common:Folder')}
                         </Flex>
                       ),
                       onClick: () => setEditFolderData({})
@@ -349,7 +352,7 @@ const Header = ({}: {}) => {
                       label: (
                         <Flex>
                           <MyIcon name={'core/dataset/fileCollection'} mr={2} w={'20px'} />
-                          {t('core.dataset.Text collection')}
+                          {t('common:core.dataset.Text collection')}
                         </Flex>
                       ),
                       onClick: () =>

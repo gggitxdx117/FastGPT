@@ -27,7 +27,7 @@ const ChatTest = ({ appForm }: { appForm: AppSimpleEditFormType }) => {
     setWorkflowData({ nodes, edges });
   }, [appForm, setWorkflowData]);
 
-  const { resetChatBox, ChatBox } = useChatTest({
+  const { restartChat, ChatContainer } = useChatTest({
     ...workflowData,
     chatConfig: appForm.chatConfig
   });
@@ -38,7 +38,7 @@ const ChatTest = ({ appForm }: { appForm: AppSimpleEditFormType }) => {
         <Box fontSize={['md', 'lg']} fontWeight={'bold'} flex={1} color={'myGray.900'}>
           {appT('Chat Debug')}
         </Box>
-        <MyTooltip label={t('core.chat.Restart')}>
+        <MyTooltip label={t('common:core.chat.Restart')}>
           <IconButton
             className="chat"
             size={'smSquare'}
@@ -48,13 +48,13 @@ const ChatTest = ({ appForm }: { appForm: AppSimpleEditFormType }) => {
             aria-label={'delete'}
             onClick={(e) => {
               e.stopPropagation();
-              resetChatBox();
+              restartChat();
             }}
           />
         </MyTooltip>
       </Flex>
       <Box flex={1}>
-        <ChatBox />
+        <ChatContainer />
       </Box>
     </Flex>
   );

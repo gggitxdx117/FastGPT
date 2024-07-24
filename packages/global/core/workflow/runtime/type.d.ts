@@ -143,6 +143,9 @@ export type DispatchNodeResponseType = {
 
   // code
   codeLog?: string;
+
+  // plugin
+  pluginOutput?: Record<string, any>;
 };
 
 export type DispatchNodeResultType<T> = {

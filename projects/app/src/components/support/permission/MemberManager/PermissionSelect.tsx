@@ -189,7 +189,7 @@ function PermissionSelect({
                 <Box ml={4}>
                   <Box>{item.name}</Box>
                   <Box color={'myGray.500'} fontSize={'mini'}>
-                    {t(item.description)}
+                    {t(item.description as any)}
                   </Box>
                 </Box>
               </Flex>
@@ -251,7 +251,7 @@ function PermissionSelect({
                 }}
               >
                 <MyIcon name="delete" w="20px" color="red.600" />
-                <Box color="red.600">{t('common.Remove')}</Box>
+                <Box color="red.600">{t('common:common.Remove')}</Box>
               </HStack>
             </>
           )}

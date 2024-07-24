@@ -17,11 +17,12 @@ import { useRouter } from 'next/router';
 import AppCard from '../WorkflowComponents/AppCard';
 import { uiWorkflow2StoreWorkflow } from '../WorkflowComponents/utils';
 import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
 const PublishHistories = dynamic(() => import('../PublishHistoriesSlider'));
 
 const Header = () => {
   const { t } = useTranslation();
-  const { isPc } = useSystemStore();
+  const { isPc } = useSystem();
   const router = useRouter();
 
   const { appDetail, onPublish, currentTab } = useContextSelector(AppContext, (v) => v);
@@ -58,7 +59,7 @@ const Header = () => {
   // effect
   useBeforeunload({
     callback: onSaveWorkflow,
-    tip: t('core.common.tip.leave page')
+    tip: t('common:core.common.tip.leave page')
   });
   useInterval(() => {
     if (!appDetail._id) return;
@@ -146,21 +147,21 @@ const Header = () => {
                   }
                 }}
               >
-                {t('core.workflow.Debug')}
+                {t('common:core.workflow.Debug')}
               </Button>
 
               {!historiesDefaultData && (
                 <PopoverConfirm
                   showCancel
-                  content={t('core.app.Publish Confirm')}
+                  content={t('common:core.app.Publish Confirm')}
                   Trigger={
                     <Box>
-                      <MyTooltip label={t('core.app.Publish app tip')}>
+                      <MyTooltip label={t('common:core.app.Publish app tip')}>
                         <Button
                           size={'sm'}
                           leftIcon={<MyIcon name={'common/publishFill'} w={['14px', '16px']} />}
                         >
-                          {t('core.app.Publish')}
+                          {t('common:core.app.Publish')}
                         </Button>
                       </MyTooltip>
                     </Box>

@@ -1,4 +1,8 @@
-import { FastGPTFeConfigsType, SystemEnvType, PresetPromptType } from '@fastgpt/global/common/system/types';
+import {
+  FastGPTFeConfigsType,
+  SystemEnvType,
+  PresetPromptType
+} from '@fastgpt/global/common/system/types';
 import {
   AudioSpeechModelType,
   ReRankModelItemType,
@@ -26,4 +30,7 @@ declare global {
     worker: Worker;
     callbackMap: Record<string, (e: number) => void>;
   }[];
+
+  var systemLoadedGlobalVariables: boolean;
+  var systemLoadedGlobalConfig: boolean;
 }

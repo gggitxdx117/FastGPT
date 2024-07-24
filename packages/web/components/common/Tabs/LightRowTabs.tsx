@@ -51,6 +51,7 @@ const LightRowTabs = <ValueType = string,>({
       borderRadius={'sm'}
       fontSize={sizeMap.fontSize}
       overflowX={'auto'}
+      userSelect={'none'}
       {...props}
     >
       {list.map((item) => (
@@ -87,7 +88,7 @@ const LightRowTabs = <ValueType = string,>({
               )}
             </>
           )}
-          {typeof item.label === 'string' ? t(item.label) : item.label}
+          {typeof item.label === 'string' ? t(item.label as any) : item.label}
         </Flex>
       ))}
     </Grid>

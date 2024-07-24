@@ -32,6 +32,7 @@ import { getAppFolderPath } from '@/web/core/app/api/app';
 import { useWorkflowUtils } from './hooks/useUtils';
 import { moduleTemplatesFlat } from '@fastgpt/global/core/workflow/template/constants';
 import { cloneDeep } from 'lodash';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
 
 type ModuleTemplateListProps = {
   isOpen: boolean;
@@ -181,17 +182,17 @@ const NodeTemplatesModal = ({ isOpen, onClose }: ModuleTemplateListProps) => {
                 list={[
                   {
                     icon: 'core/modules/basicNode',
-                    label: t('core.module.template.Basic Node'),
+                    label: t('common:core.module.template.Basic Node'),
                     value: TemplateTypeEnum.basic
                   },
                   {
                     icon: 'core/modules/systemPlugin',
-                    label: t('core.module.template.System Plugin'),
+                    label: t('common:core.module.template.System Plugin'),
                     value: TemplateTypeEnum.systemPlugin
                   },
                   {
                     icon: 'core/modules/teamPlugin',
-                    label: t('core.module.template.Team Plugin'),
+                    label: t('common:core.module.template.Team Plugin'),
                     value: TemplateTypeEnum.teamPlugin
                   }
                 ]}
@@ -218,7 +219,7 @@ const NodeTemplatesModal = ({ isOpen, onClose }: ModuleTemplateListProps) => {
                   <Input
                     h={'full'}
                     bg={'myGray.50'}
-                    placeholder={t('plugin.Search plugin')}
+                    placeholder={t('common:plugin.Search plugin')}
                     onChange={(e) => setSearchKey(e.target.value)}
                   />
                 </InputGroup>
@@ -268,7 +269,7 @@ const RenderList = React.memo(function RenderList({
   const { t } = useTranslation();
   const { appT } = useI18n();
 
-  const { isPc } = useSystemStore();
+  const { isPc } = useSystem();
   const { x, y, zoom } = useViewport();
   const { setLoading } = useSystemStore();
   const { toast } = useToast();
@@ -317,7 +318,7 @@ const RenderList = React.memo(function RenderList({
         } catch (e) {
           toast({
             status: 'error',
-            title: getErrText(e, t('core.plugin.Get Plugin Module Detail Failed'))
+            title: getErrText(e, t('common:core.plugin.Get Plugin Module Detail Failed'))
           });
           setLoading(false);
           return Promise.reject(e);
@@ -332,11 +333,11 @@ const RenderList = React.memo(function RenderList({
         template: {
           ...templateNode,
           name: computedNewNodeName({
-            templateName: t(templateNode.name),
+            templateName: t(templateNode.name as any),
             flowNodeType: templateNode.flowNodeType,
             pluginId: templateNode.pluginId
           }),
-          intro: t(templateNode.intro || '')
+          intro: t(templateNode.intro || ('' as any))
         },
         position: { x: mouseX, y: mouseY - 20 },
         selected: true
@@ -373,7 +374,7 @@ const RenderList = React.memo(function RenderList({
               {item.label && (
                 <Flex>
                   <Box fontSize={'sm'} fontWeight={'bold'} flex={1}>
-                    {t(item.label)}
+                    {t(item.label as any)}
                   </Box>
                 </Flex>
               )}
@@ -393,11 +394,11 @@ const RenderList = React.memo(function RenderList({
                             borderRadius={'0'}
                           />
                           <Box fontWeight={'bold'} ml={3}>
-                            {t(template.name)}
+                            {t(template.name as any)}
                           </Box>
                         </Flex>
                         <Box mt={2} color={'myGray.500'}>
-                          {t(template.intro) || t('core.workflow.Not intro')}
+                          {t(template.intro as any) || t('common:core.workflow.Not intro')}
                         </Box>
                       </Box>
                     }
@@ -440,7 +441,7 @@ const RenderList = React.memo(function RenderList({
                         borderRadius={'0'}
                       />
                       <Box color={'black'} fontSize={'sm'} ml={5} flex={'1 0 0'}>
-                        {t(template.name)}
+                        {t(template.name as any)}
                       </Box>
                     </Flex>
                   </MyTooltip>

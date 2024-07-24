@@ -47,7 +47,7 @@ const addCommonMiddleware = (schema: mongoose.Schema) => {
 
         if (duration > 1000) {
           addLog.warn(`Slow operation ${duration}ms`, warnLogData);
-        } else if (duration > 300) {
+        } else if (duration > 3000) {
           addLog.error(`Slow operation ${duration}ms`, warnLogData);
         }
       }
@@ -64,10 +64,13 @@ export const getMongoModel = <T>(name: string, schema: mongoose.Schema) => {
   addCommonMiddleware(schema);
 
   const model = connectionMongo.model<T>(name, schema);
-  try {
-    model.syncIndexes();
-  } catch (error) {
-    addLog.error('Create index error', error);
+
+  if (process.env.SYNC_INDEX !== '0') {
+    try {
+      model.syncIndexes({ background: true });
+    } catch (error) {
+      addLog.error('Create index error', error);
+    }
   }
 
   return model;

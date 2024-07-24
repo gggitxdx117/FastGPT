@@ -53,13 +53,14 @@ import { useContextSelector } from 'use-context-selector';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import MyTag from '@fastgpt/web/components/common/Tag/index';
 import MyBox from '@fastgpt/web/components/common/MyBox';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
 
 const DataCard = () => {
   const BoxRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
   const lastSearch = useRef('');
   const router = useRouter();
-  const { isPc } = useSystemStore();
+  const { isPc } = useSystem();
   const { collectionId = '', datasetId } = router.query as {
     collectionId: string;
     datasetId: string;
@@ -71,7 +72,7 @@ const DataCard = () => {
   const [searchText, setSearchText] = useState('');
   const { toast } = useToast();
   const { openConfirm, ConfirmModal } = useConfirm({
-    content: t('dataset.Confirm to delete the data'),
+    content: t('common:dataset.Confirm to delete the data'),
     type: 'delete'
   });
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -140,41 +141,41 @@ const DataCard = () => {
 
     return [
       {
-        label: t('core.dataset.collection.metadata.source'),
-        value: t(DatasetCollectionTypeMap[collection.type]?.name)
+        label: t('common:core.dataset.collection.metadata.source'),
+        value: t(DatasetCollectionTypeMap[collection.type]?.name as any)
       },
       {
-        label: t('core.dataset.collection.metadata.source name'),
+        label: t('common:core.dataset.collection.metadata.source name'),
         value: collection.file?.filename || collection?.rawLink || collection?.name
       },
       {
-        label: t('core.dataset.collection.metadata.source size'),
+        label: t('common:core.dataset.collection.metadata.source size'),
         value: collection.file ? formatFileSize(collection.file.length) : '-'
       },
       {
-        label: t('core.dataset.collection.metadata.Createtime'),
+        label: t('common:core.dataset.collection.metadata.Createtime'),
         value: formatTime2YMDHM(collection.createTime)
       },
       {
-        label: t('core.dataset.collection.metadata.Updatetime'),
+        label: t('common:core.dataset.collection.metadata.Updatetime'),
         value: formatTime2YMDHM(collection.updateTime)
       },
       {
-        label: t('core.dataset.collection.metadata.Raw text length'),
+        label: t('common:core.dataset.collection.metadata.Raw text length'),
         value: collection.rawTextLength ?? '-'
       },
       {
-        label: t('core.dataset.collection.metadata.Training Type'),
-        value: t(TrainingTypeMap[collection.trainingType]?.label)
+        label: t('common:core.dataset.collection.metadata.Training Type'),
+        value: t(TrainingTypeMap[collection.trainingType]?.label as any)
       },
       {
-        label: t('core.dataset.collection.metadata.Chunk Size'),
+        label: t('common:core.dataset.collection.metadata.Chunk Size'),
         value: collection.chunkSize || '-'
       },
       ...(webSelector
         ? [
             {
-              label: t('core.dataset.collection.metadata.Web page selector'),
+              label: t('common:core.dataset.collection.metadata.Web page selector'),
               value: webSelector
             }
           ]
@@ -234,7 +235,7 @@ const DataCard = () => {
                 />
               )}
               <Box fontSize={'sm'} color={'myGray.500'}>
-                {t('core.dataset.collection.id')}:{' '}
+                {t('common:core.dataset.collection.id')}:{' '}
                 <Box as={'span'} userSelect={'all'}>
                   {collection?._id}
                 </Box>
@@ -252,12 +253,12 @@ const DataCard = () => {
                   setEditDataId('');
                 }}
               >
-                {t('dataset.Insert Data')}
+                {t('common:dataset.Insert Data')}
               </Button>
             </Box>
           )}
           {isPc && (
-            <MyTooltip label={t('core.dataset.collection.metadata.Read Metadata')}>
+            <MyTooltip label={t('common:core.dataset.collection.metadata.Read Metadata')}>
               <IconButton
                 variant={'whiteBase'}
                 size={['sm', 'md']}
@@ -285,7 +286,7 @@ const DataCard = () => {
               />
             }
             w={['200px', '300px']}
-            placeholder={t('core.dataset.data.Search data placeholder')}
+            placeholder={t('common:core.dataset.data.Search data placeholder')}
             value={searchText}
             onChange={(e) => {
               setSearchText(e.target.value);
@@ -437,7 +438,7 @@ const DataCard = () => {
               <Pagination />
             </Flex>
           )}
-          {total === 0 && <EmptyTip text={t('core.dataset.data.Empty Tip')}></EmptyTip>}
+          {total === 0 && <EmptyTip text={t('common:core.dataset.data.Empty Tip')}></EmptyTip>}
         </Box>
       </Flex>
 
@@ -446,7 +447,7 @@ const DataCard = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader fontSize={'lg'}>
-            {t('core.dataset.collection.metadata.metadata')}
+            {t('common:core.dataset.collection.metadata.metadata')}
           </DrawerHeader>
 
           <DrawerBody>
@@ -460,14 +461,14 @@ const DataCard = () => {
             ))}
             {collection?.sourceId && (
               <Button variant={'whitePrimary'} onClick={readSource}>
-                {t('core.dataset.collection.metadata.read source')}
+                {t('common:core.dataset.collection.metadata.read source')}
               </Button>
             )}
           </DrawerBody>
 
           <DrawerFooter>
             <Button variant={'whitePrimary'} onClick={onClose}>
-              {t('common.Close')}
+              {t('common:common.Close')}
             </Button>
           </DrawerFooter>
         </DrawerContent>

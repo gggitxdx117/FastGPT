@@ -12,6 +12,7 @@ import UserInfo from './components/Info';
 import { serviceSideProps } from '@/web/common/utils/i18n';
 import { useTranslation } from 'next-i18next';
 import Script from 'next/script';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
 
 const Promotion = dynamic(() => import('./components/Promotion'));
 const UsageTable = dynamic(() => import('./components/UsageTable'));
@@ -34,19 +35,20 @@ enum TabEnum {
 const Account = ({ currentTab }: { currentTab: TabEnum }) => {
   const { t } = useTranslation();
   const { userInfo, setUserInfo } = useUserStore();
-  const { feConfigs, isPc, systemVersion } = useSystemStore();
+  const { feConfigs, systemVersion } = useSystemStore();
+  const { isPc } = useSystem();
 
   const tabList = [
     {
       icon: 'support/user/userLight',
-      label: t('user.Personal Information'),
+      label: t('common:user.Personal Information'),
       value: TabEnum.info
     },
     ...(feConfigs?.isPlus
       ? [
           {
             icon: 'support/usage/usageRecordLight',
-            label: t('user.Usage Record'),
+            label: t('common:user.Usage Record'),
             value: TabEnum.usage
           }
         ]
@@ -55,7 +57,7 @@ const Account = ({ currentTab }: { currentTab: TabEnum }) => {
       ? [
           {
             icon: 'support/bill/payRecordLight',
-            label: t('support.wallet.Bills'),
+            label: t('common:support.wallet.Bills'),
             value: TabEnum.bill
           }
         ]
@@ -65,7 +67,7 @@ const Account = ({ currentTab }: { currentTab: TabEnum }) => {
       ? [
           {
             icon: 'support/account/promotionLight',
-            label: t('user.Promotion Record'),
+            label: t('common:user.Promotion Record'),
             value: TabEnum.promotion
           }
         ]
@@ -74,21 +76,21 @@ const Account = ({ currentTab }: { currentTab: TabEnum }) => {
       ? [
           {
             icon: 'support/outlink/apikeyLight',
-            label: t('user.apikey.key'),
+            label: t('common:user.apikey.key'),
             value: TabEnum.apikey
           }
         ]
       : []),
     {
       icon: 'support/user/individuation',
-      label: t('support.account.Individuation'),
+      label: t('common:support.account.Individuation'),
       value: TabEnum.individuation
     },
     ...(feConfigs.isPlus
       ? [
           {
             icon: 'support/user/informLight',
-            label: t('user.Notice'),
+            label: t('common:user.Notice'),
             value: TabEnum.inform
           }
         ]
@@ -96,7 +98,7 @@ const Account = ({ currentTab }: { currentTab: TabEnum }) => {
 
     {
       icon: 'support/account/loginoutLight',
-      label: t('user.Sign Out'),
+      label: t('common:user.Sign Out'),
       value: TabEnum.loginout
     }
   ];

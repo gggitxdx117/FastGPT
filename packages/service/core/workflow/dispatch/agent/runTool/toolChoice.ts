@@ -1,6 +1,6 @@
 import { LLMModelItemType } from '@fastgpt/global/core/ai/model.d';
 import { getAIApi } from '../../../../ai/config';
-import { filterGPTMessageByMaxTokens } from '../../../../chat/utils';
+import { filterGPTMessageByMaxTokens, loadRequestMessages } from '../../../../chat/utils';
 import {
   ChatCompletion,
   ChatCompletionMessageToolCall,
@@ -49,7 +49,17 @@ export const runToolWithToolChoice = async (
   },
   response?: RunToolResponse
 ): Promise<RunToolResponse> => {
-  const { toolModel, toolNodes, messages, res, runtimeNodes, detail = false, responseDetail = true, node, stream } = props;
+  const {
+    toolModel,
+    toolNodes,
+    messages,
+    res,
+    runtimeNodes,
+    detail = false,
+    responseDetail = true,
+    node,
+    stream
+  } = props;
   const assistantResponses = response?.assistantResponses || [];
 
   const tools: ChatCompletionTool[] = toolNodes.map((item) => {
@@ -99,6 +109,8 @@ export const runToolWithToolChoice = async (
     }
     return item;
   });
+  const requestMessages = await loadRequestMessages(formativeMessages);
+
   // console.log(
   //   JSON.stringify(
   //     {
@@ -106,7 +118,7 @@ export const runToolWithToolChoice = async (
   //       model: toolModel.model,
   //       temperature: 0,
   //       stream,
-  //       messages: formativeMessages,
+  //       messages: requestMessages,
   //       tools,
   //       tool_choice: 'auto'
   //     },
@@ -124,7 +136,7 @@ export const runToolWithToolChoice = async (
       model: toolModel.model,
       temperature: 0,
       stream,
-      messages: formativeMessages,
+      messages: requestMessages,
       tools,
       tool_choice: 'auto'
     },

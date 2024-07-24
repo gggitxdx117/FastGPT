@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useChatBox } from '@/components/ChatBox/hooks/useChatBox';
+import { useChatBox } from '@/components/core/chat/ChatContainer/ChatBox/hooks/useChatBox';
 import type { ChatItemType } from '@fastgpt/global/core/chat/type.d';
 import { Box, IconButton } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -29,7 +29,7 @@ const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
           children: [
             {
               icon: 'core/chat/chatLight',
-              label: t('core.chat.New Chat'),
+              label: t('common:core.chat.New Chat'),
               onClick: () => {
                 clearLocalHistory();
                 router.replace({
@@ -46,17 +46,17 @@ const ToolMenu = ({ history }: { history: ChatItemType[] }) => {
           children: [
             // {
             //   icon: 'core/app/appApiLight',
-            //   label: `HTML ${t('Export')}`,
+            //   label: `HTML ${t('common:Export')}`,
             //   onClick: () => onExportChat({ type: 'html', history })
             // },
             {
               icon: 'file/markdown',
-              label: `Markdown ${t('Export')}`,
+              label: `Markdown ${t('common:Export')}`,
               onClick: () => onExportChat({ type: 'md', history })
             }
             // {
             //   icon: 'core/chat/export/pdf',
-            //   label: `PDF ${t('Export')}`,
+            //   label: `PDF ${t('common:Export')}`,
             //   onClick: () => onExportChat({ type: 'pdf', history })
             // }
           ]

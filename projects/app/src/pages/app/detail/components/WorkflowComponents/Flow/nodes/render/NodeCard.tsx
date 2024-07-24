@@ -13,7 +13,6 @@ import { ToolTargetHandle } from './Handle/ToolHandle';
 import { useEditTextarea } from '@fastgpt/web/hooks/useEditTextarea';
 import { ConnectionSourceHandle, ConnectionTargetHandle } from './Handle/ConnectionHandle';
 import { useDebug } from '../../hooks/useDebug';
-import { ResponseBox } from '@/components/ChatBox/components/WholeResponseModal';
 import EmptyTip from '@fastgpt/web/components/common/EmptyTip';
 import { getPreviewPluginNode } from '@/web/core/app/api/plugin';
 import { storeNode2FlowNode, getLatestNodeTemplate } from '@/web/core/workflow/utils';
@@ -26,6 +25,7 @@ import { QuestionOutlineIcon } from '@chakra-ui/icons';
 import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import { useWorkflowUtils } from '../../hooks/useUtils';
+import { ResponseBox } from '@/components/core/chat/components/WholeResponseModal';
 
 type Props = FlowNodeItemType & {
   children?: React.ReactNode | React.ReactNode[] | string;
@@ -49,7 +49,7 @@ const NodeCard = (props: Props) => {
   const {
     children,
     avatar = LOGO_ICON,
-    name = t('core.module.template.UnKnow Module'),
+    name = t('common:core.module.template.UnKnow Module'),
     intro,
     minW = '300px',
     maxW = '600px',
@@ -69,7 +69,7 @@ const NodeCard = (props: Props) => {
 
   // custom title edit
   const { onOpenModal: onOpenCustomTitleModal, EditModal: EditTitleModal } = useEditTitle({
-    title: t('common.Custom Title'),
+    title: t('common:common.Custom Title'),
     placeholder: appT('module.Custom Title Tip') || ''
   });
 
@@ -139,7 +139,7 @@ const NodeCard = (props: Props) => {
           <Flex alignItems={'center'}>
             <Avatar src={avatar} borderRadius={'0'} objectFit={'contain'} w={'30px'} h={'30px'} />
             <Box ml={3} fontSize={'md'} fontWeight={'medium'}>
-              {t(name)}
+              {t(name as any)}
             </Box>
             {!menuForbid?.rename && (
               <MyIcon
@@ -273,7 +273,7 @@ const MenuRender = React.memo(function MenuRender({
   const { openDebugNode, DebugInputModal } = useDebug();
 
   const { openConfirm: onOpenConfirmDeleteNode, ConfirmModal: ConfirmDeleteModal } = useConfirm({
-    content: t('core.module.Confirm Delete Node'),
+    content: t('common:core.module.Confirm Delete Node'),
     type: 'delete'
   });
 
@@ -338,7 +338,7 @@ const MenuRender = React.memo(function MenuRender({
         : [
             {
               icon: 'core/workflow/debug',
-              label: t('core.workflow.Debug'),
+              label: t('common:core.workflow.Debug'),
               variant: 'whiteBase',
               onClick: () => openDebugNode({ entryNodeId: nodeId })
             }
@@ -348,7 +348,7 @@ const MenuRender = React.memo(function MenuRender({
         : [
             {
               icon: 'copy',
-              label: t('common.Copy'),
+              label: t('common:common.Copy'),
               variant: 'whiteBase',
               onClick: () => onCopyNode(nodeId)
             }
@@ -358,7 +358,7 @@ const MenuRender = React.memo(function MenuRender({
         : [
             {
               icon: 'delete',
-              label: t('common.Delete'),
+              label: t('common:common.Delete'),
               variant: 'whiteDanger',
               onClick: onOpenConfirmDeleteNode(() => onDelNode(nodeId))
             }
@@ -433,7 +433,7 @@ const NodeIntro = React.memo(function NodeIntro({
 
   // edit intro
   const { onOpenModal: onOpenIntroModal, EditModal: EditIntroModal } = useEditTextarea({
-    title: t('core.module.Edit intro'),
+    title: t('common:core.module.Edit intro'),
     tip: '调整该模块会对工具调用时机有影响。\n你可以通过精确的描述该模块功能，引导模型进行工具调用。',
     canEmpty: false
   });
@@ -443,7 +443,7 @@ const NodeIntro = React.memo(function NodeIntro({
       <>
         <Flex alignItems={'flex-end'} py={1}>
           <Box fontSize={'xs'} color={'myGray.600'} flex={'1 0 0'}>
-            {t(intro)}
+            {t(intro as any)}
           </Box>
           {NodeIsTool && (
             <Button
@@ -463,7 +463,7 @@ const NodeIntro = React.memo(function NodeIntro({
                 });
               }}
             >
-              {t('core.module.Edit intro')}
+              {t('common:core.module.Edit intro')}
             </Button>
           )}
         </Flex>
@@ -490,29 +490,29 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
   const workflowDebugData = useContextSelector(WorkflowContext, (v) => v.workflowDebugData);
 
   const { openConfirm, ConfirmModal } = useConfirm({
-    content: t('core.workflow.Confirm stop debug')
+    content: t('common:core.workflow.Confirm stop debug')
   });
 
   const RenderStatus = useMemo(() => {
     const map = {
       running: {
         bg: 'primary.50',
-        text: t('core.workflow.Running'),
+        text: t('common:core.workflow.Running'),
         icon: 'core/workflow/running'
       },
       success: {
         bg: 'green.50',
-        text: t('core.workflow.Success'),
+        text: t('common:core.workflow.Success'),
         icon: 'core/workflow/runSuccess'
       },
       failed: {
         bg: 'red.50',
-        text: t('core.workflow.Failed'),
+        text: t('common:core.workflow.Failed'),
         icon: 'core/workflow/runError'
       },
       skipped: {
         bg: 'myGray.50',
-        text: t('core.workflow.Skipped'),
+        text: t('common:core.workflow.Skipped'),
         icon: 'core/workflow/runSkip'
       }
     };
@@ -550,8 +550,8 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
               }
             >
               {debugResult.showResult
-                ? t('core.workflow.debug.Hide result')
-                : t('core.workflow.debug.Show result')}
+                ? t('common:core.workflow.debug.Hide result')
+                : t('common:core.workflow.debug.Show result')}
             </Box>
           )}
         </Flex>
@@ -566,14 +566,13 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
             w={'420px'}
             maxH={'100%'}
             minH={'300px'}
-            overflowY={'auto'}
             border={'base'}
           >
             {/* Status header */}
-            <Flex px={4} mb={1} py={3} alignItems={'center'} borderBottom={'base'}>
+            <Flex h={'54x'} px={4} mb={1} py={3} alignItems={'center'} borderBottom={'base'}>
               <MyIcon mr={1} name={'core/workflow/debugResult'} w={'20px'} color={'primary.600'} />
               <Box fontWeight={'bold'} flex={'1'}>
-                {t('core.workflow.debug.Run result')}
+                {t('common:core.workflow.debug.Run result')}
               </Box>
               {workflowDebugData?.nextRunNodes.length !== 0 && (
                 <Button
@@ -582,7 +581,7 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
                   variant={'whiteDanger'}
                   onClick={onStop}
                 >
-                  {t('core.workflow.Stop debug')}
+                  {t('common:core.workflow.Stop debug')}
                 </Button>
               )}
               {(debugResult.status === 'success' || debugResult.status === 'skipped') &&
@@ -596,19 +595,19 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
                     variant={'primary'}
                     onClick={() => onNextNodeDebug()}
                   >
-                    {t('common.Next Step')}
+                    {t('common:common.Next Step')}
                   </Button>
                 )}
               {workflowDebugData?.nextRunNodes && workflowDebugData?.nextRunNodes.length === 0 && (
                 <Button ml={2} size={'sm'} variant={'primary'} onClick={onStopNodeDebug}>
-                  {t('core.workflow.debug.Done')}
+                  {t('common:core.workflow.debug.Done')}
                 </Button>
               )}
             </Flex>
             {/* Show result */}
-            <Box maxH={'100%'} overflow={'auto'}>
+            <Box maxH={'calc(100%-54px)'} overflow={'auto'}>
               {!debugResult.message && !response && (
-                <EmptyTip text={t('core.workflow.debug.Not result')} pt={2} pb={5} />
+                <EmptyTip text={t('common:core.workflow.debug.Not result')} pt={2} pb={5} />
               )}
               {debugResult.message && (
                 <Box color={'red.600'} px={3} py={4}>

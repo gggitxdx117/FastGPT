@@ -60,7 +60,7 @@ export const useDebug = () => {
 
       toast({
         status: 'warning',
-        title: t('core.workflow.Check Failed')
+        title: t('common:core.workflow.Check Failed')
       });
       return Promise.reject();
     }
@@ -138,7 +138,7 @@ export const useDebug = () => {
       setRuntimeEdges(undefined);
     };
 
-    const onclickRun = (data: Record<string, any>) => {
+    const onClickRun = (data: Record<string, any>) => {
       onStartNodeDebug({
         entryNodeId: runtimeNode.nodeId,
         runtimeNodes: runtimeNodes.map((node) =>
@@ -178,7 +178,7 @@ export const useDebug = () => {
       <MyRightDrawer
         onClose={onClose}
         iconSrc="core/workflow/debugBlue"
-        title={t('core.workflow.Debug Node')}
+        title={t('common:core.workflow.Debug Node')}
         maxW={['90vw', '35vw']}
         px={0}
       >
@@ -193,7 +193,7 @@ export const useDebug = () => {
                     {...register(input.key, {
                       required
                     })}
-                    placeholder={t(input.placeholder || '')}
+                    placeholder={t(input.placeholder || ('' as any))}
                     bg={'myGray.50'}
                   />
                 );
@@ -232,7 +232,7 @@ export const useDebug = () => {
               return (
                 <JsonEditor
                   bg={'myGray.50'}
-                  placeholder={t(input.placeholder || '')}
+                  placeholder={t(input.placeholder || ('' as any))}
                   resize
                   value={value}
                   onChange={(e) => {
@@ -251,7 +251,7 @@ export const useDebug = () => {
                         *
                       </Box>
                     )}
-                    {t(input.debugLabel || input.label)}
+                    {t(input.debugLabel || (input.label as any))}
                   </Box>
                   {input.description && <QuestionTip ml={2} label={input.description} />}
                 </Flex>
@@ -261,7 +261,7 @@ export const useDebug = () => {
           })}
         </Box>
         <Flex py={2} justifyContent={'flex-end'} px={6}>
-          <Button onClick={handleSubmit(onclickRun)}>运行</Button>
+          <Button onClick={handleSubmit(onClickRun)}>运行</Button>
         </Flex>
       </MyRightDrawer>
     );

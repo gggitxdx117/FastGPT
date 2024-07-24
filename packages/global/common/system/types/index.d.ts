@@ -75,10 +75,4 @@ export type SystemEnvType = {
 export type PresetPromptType = {
   title: string;
   prompt: string;
-}
-
-// declare global {
-//   var feConfigs: FastGPTFeConfigsType;
-//   var systemEnv: SystemEnvType;
-//   var systemInitd: boolean;
-// }
+};

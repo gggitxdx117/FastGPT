@@ -36,7 +36,7 @@ const TeamMenu = () => {
         onOpen();
       }}
     >
-      <MyTooltip label={t('user.team.Select Team')}>
+      <MyTooltip label={t('common:user.team.Select Team')}>
         <Flex w={'100%'} alignItems={'center'}>
           {userInfo?.team ? (
             <>
@@ -46,7 +46,7 @@ const TeamMenu = () => {
           ) : (
             <>
               <Box w={'8px'} h={'8px'} mr={3} borderRadius={'50%'} bg={'#67c13b'} />
-              {t('user.team.Personal Team')}
+              {t('common:user.team.Personal Team')}
             </>
           )}
         </Flex>

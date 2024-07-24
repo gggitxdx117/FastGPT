@@ -1,18 +1,17 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Flex, Drawer, DrawerOverlay, DrawerContent } from '@chakra-ui/react';
-import { useToast } from '@fastgpt/web/hooks/useToast';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { streamFetch } from '@/web/common/api/fetch';
 import { useShareChatStore } from '@/web/core/chat/storeShareChat';
 import SideBar from '@/components/SideBar';
 import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
-import { getErrText } from '@fastgpt/global/common/error/utils';
 import { customAlphabet } from 'nanoid';
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 12);
 
-import ChatBox from '@/components/ChatBox';
-import type { ComponentRef, StartChatFnProps } from '@/components/ChatBox/type.d';
+import ChatBox from '@/components/core/chat/ChatContainer/ChatBox';
+import type { StartChatFnProps } from '@/components/core/chat/ChatContainer/type';
+
 import PageContainer from '@/components/PageContainer';
 import ChatHeader from './components/ChatHeader';
 import ChatHistorySlider from './components/ChatHistorySlider';
@@ -38,6 +37,13 @@ import Script from 'next/script';
 declare global {
   var tt: any;
 }
+import { AppTypeEnum } from '@fastgpt/global/core/app/constants';
+import { useChat } from '@/components/core/chat/ChatContainer/useChat';
+import { getNanoid } from '@fastgpt/global/common/string/tools';
+
+import dynamic from 'next/dynamic';
+import { useSystem } from '@fastgpt/web/hooks/useSystem';
+const CustomPluginRunBox = dynamic(() => import('./components/CustomPluginRunBox'));
 
 type Props = {
   appName: string;
@@ -68,8 +74,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
     avatarUrl: string;
     [key: string]: string;
   };
-  const { isPc } = useSystemStore();
-  const ChatBoxRef = useRef<ComponentRef>(null);
+  const { isPc } = useSystem();
   const initSign = useRef(false);
   const [isEmbed, setIdEmbed] = useState(true);
 
@@ -89,17 +94,27 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
     onChangeChatId
   } = useContextSelector(ChatContext, (v) => v);
 
+  const {
+    ChatBoxRef,
+    chatRecords,
+    setChatRecords,
+    variablesForm,
+    pluginRunTab,
+    setPluginRunTab,
+    resetChatRecords
+  } = useChat();
+
   const startChat = useCallback(
     async ({ messages, controller, generatingMessage, variables }: StartChatFnProps) => {
-      const prompts = messages.slice(-2);
-      const completionChatId = chatId ? chatId : nanoid();
+      const completionChatId = chatId || getNanoid();
+      const histories = messages.slice(-1);
 
       //post message to report chat start
       window.top?.postMessage(
         {
           type: 'shareChatStart',
           data: {
-            question: prompts[0]?.content
+            question: histories[0]?.content
           }
         },
         '*'
@@ -107,41 +122,32 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
 
       const { responseText, responseData } = await streamFetch({
         data: {
-          messages: prompts,
+          messages: histories,
           variables: {
             ...variables,
             ...customVariables
           },
           shareId,
           chatId: completionChatId,
+          appType: chatData.app.type,
           outLinkUid
         },
         onMessage: generatingMessage,
         abortCtrl: controller
       });
 
-      const newTitle = getChatTitleFromChatMessage(GPTMessages2Chats(prompts)[0]);
+      const newTitle = getChatTitleFromChatMessage(GPTMessages2Chats(histories)[0]);
 
       // new chat
       if (completionChatId !== chatId) {
         onChangeChatId(completionChatId, true);
-        loadHistories();
-      } else {
-        // update chat
-        onUpdateHistory({
-          appId,
-          chatId: completionChatId,
-          title: newTitle,
-          shareId,
-          outLinkUid
-        });
       }
+      loadHistories();
 
       // update chat window
       setChatData((state) => ({
         ...state,
-        title: newTitle,
-        history: ChatBoxRef.current?.getChatHistories() || state.history
+        title: newTitle
       }));
 
       // hook message
@@ -149,7 +155,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
         {
           type: 'shareChatFinish',
           data: {
-            question: prompts[0]?.content,
+            question: histories[0]?.content,
             answer: responseText
           }
         },
@@ -162,12 +168,11 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
       chatId,
       customVariables,
       shareId,
+      chatData.app.type,
       outLinkUid,
       forbidLoadChat,
       onChangeChatId,
-      loadHistories,
-      onUpdateHistory,
-      appId
+      loadHistories
     ]
   );
 
@@ -180,15 +185,13 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
         shareId,
         outLinkUid
       });
+      setChatData(res);
+
       const history = res.history.map((item) => ({
         ...item,
         dataId: item.dataId || nanoid(),
         status: ChatStatusEnum.finish
       }));
-      const result: InitChatResponse = {
-        ...res,
-        history
-      };
 
       // 向小程序传递消息--为了绑定chatId与 登录用户之间 的关系
       try {
@@ -209,16 +212,10 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
         console.log(error);
       }
 
-      // reset chat box
-      ChatBoxRef.current?.resetHistory(history);
-      ChatBoxRef.current?.resetVariables(res.variables);
-      if (history.length > 0) {
-        setTimeout(() => {
-          ChatBoxRef.current?.scrollToBottom('auto');
-        }, 500);
-      }
-
-      setChatData(result);
+      resetChatRecords({
+        records: history,
+        variables: res.variables
+      });
     },
     {
       manual: false,
@@ -260,7 +257,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
           ? { p: '0 !important', insertProps: { borderRadius: '0', boxShadow: 'none' } }
           : { p: [0, 5] })}
       >
-        <Flex h={'100%'} flexDirection={['column', 'row']} bg={'white'}>
+        <Flex h={'100%'} flexDirection={['column', 'row']}>
           {showHistory === '1' &&
             ((children: React.ReactNode) => {
               return isPc ? (
@@ -283,7 +280,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
               <ChatHistorySlider
                 appName={chatData.app.name}
                 appAvatar={chatData.app.avatar}
-                confirmClearText={t('core.chat.Confirm to clear share chat history')}
+                confirmClearText={t('common:core.chat.Confirm to clear share chat history')}
                 onDelHistory={({ chatId }) =>
                   onDelHistory({ appId: chatData.appId, chatId, shareId, outLinkUid })
                 }
@@ -321,37 +318,52 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
             {/* header */}
             {showHead === '1' ? (
               <ChatHeader
-                appAvatar={chatData.app.avatar}
-                appName={chatData.app.name}
+                chatData={chatData}
                 history={chatData.history}
                 showHistory={showHistory === '1'}
               />
             ) : null}
             {/* chat box */}
-            <Box flex={1}>
-              <ChatBox
-                ref={ChatBoxRef}
-                appAvatar={avatarUrl || appAvatar || chatData.app?.avatar}
-                userAvatar={chatData.userAvatar}
-                chatConfig={chatData.app?.chatConfig}
-                showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
-                feedbackType={'user'}
-                onUpdateVariable={(e) => {}}
-                onStartChat={startChat}
-                onDelMessage={({ contentId }) =>
-                  delChatRecordById({
-                    contentId,
-                    appId: chatData.appId,
-                    chatId,
-                    shareId,
-                    outLinkUid
-                  })
-                }
-                appId={chatData.appId}
-                chatId={chatId}
-                shareId={shareId}
-                outLinkUid={outLinkUid}
-              />
+            <Box flex={1} bg={'white'}>
+              {chatData.app.type === AppTypeEnum.plugin ? (
+                <CustomPluginRunBox
+                  pluginInputs={chatData.app.pluginInputs}
+                  variablesForm={variablesForm}
+                  histories={chatRecords}
+                  setHistories={setChatRecords}
+                  appId={chatData.appId}
+                  tab={pluginRunTab}
+                  setTab={setPluginRunTab}
+                  onNewChat={() => onChangeChatId(getNanoid())}
+                  onStartChat={startChat}
+                />
+              ) : (
+                <ChatBox
+                  ref={ChatBoxRef}
+                  chatHistories={chatRecords}
+                  setChatHistories={setChatRecords}
+                  variablesForm={variablesForm}
+                  appAvatar={chatData.app.avatar}
+                  userAvatar={chatData.userAvatar}
+                  chatConfig={chatData.app?.chatConfig}
+                  showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
+                  feedbackType={'user'}
+                  onStartChat={startChat}
+                  onDelMessage={({ contentId }) =>
+                    delChatRecordById({
+                      contentId,
+                      appId: chatData.appId,
+                      chatId,
+                      shareId,
+                      outLinkUid
+                    })
+                  }
+                  appId={chatData.appId}
+                  chatId={chatId}
+                  shareId={shareId}
+                  outLinkUid={outLinkUid}
+                />
+              )}
             </Box>
           </Flex>
         </Flex>
