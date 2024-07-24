@@ -71,8 +71,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     // auth balance
     const { user } = await getUserChatInfoAndAuthTeamPoints(tmbId);
+    console.log(nodes);
 
-    const { text, files } = chatValue2RuntimePrompt(userInput);
+    const { text, files } = chatValue2RuntimePrompt(removeEmptyUserInput(userInput));
 
     /* start process */
     const { flowResponses, flowUsages } = await dispatchWorkFlow({
