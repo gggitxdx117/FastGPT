@@ -72,7 +72,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // auth balance
     const { user } = await getUserChatInfoAndAuthTeamPoints(tmbId);
 
-    const { text, files } = chatValue2RuntimePrompt(prompt);
+    const { text, files } = chatValue2RuntimePrompt(userInput);
 
     /* start process */
     const { flowResponses, flowUsages } = await dispatchWorkFlow({

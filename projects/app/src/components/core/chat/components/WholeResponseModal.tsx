@@ -350,7 +350,11 @@ export const ResponseBox = React.memo(function ResponseBox({
           {activeModule?.toolDetail && activeModule?.toolDetail.length > 0 && (
             <Row
               label={t('common:core.chat.response.Tool call response detail')}
-              rawDom={<ResponseBox response={activeModule.toolDetail} showDetail={showDetail} />}
+              rawDom={
+                <Box h={'60vh'}>
+                  <ResponseBox response={activeModule.toolDetail} showDetail={showDetail} />
+                </Box>
+              }
             />
           )}
 
