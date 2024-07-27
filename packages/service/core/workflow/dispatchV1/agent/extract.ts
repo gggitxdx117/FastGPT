@@ -221,7 +221,7 @@ const toolChoice = async (props: ActionProps) => {
   ];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: extractModel?.openaiAccount ? extractModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 
@@ -266,7 +266,7 @@ const functionCall = async (props: ActionProps) => {
   const functions: ChatCompletionCreateParams.Function[] = [agentFunction];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: extractModel?.openaiAccount ? extractModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 
@@ -339,7 +339,7 @@ Human: ${content}`
   ];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: extractModel?.openaiAccount ? extractModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
   const data = await ai.chat.completions.create({

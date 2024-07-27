@@ -182,7 +182,7 @@ const toolChoice = async (props: ActionProps) => {
   ];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: cqModel?.openaiAccount ? cqModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 
@@ -229,7 +229,7 @@ const functionCall = async (props: ActionProps) => {
   const functions: ChatCompletionCreateParams.Function[] = [agentFunction];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: cqModel?.openaiAccount ? cqModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 
@@ -299,7 +299,7 @@ const completions = async ({
   ];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: cqModel?.openaiAccount ? cqModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 

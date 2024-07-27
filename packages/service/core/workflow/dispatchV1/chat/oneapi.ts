@@ -133,7 +133,7 @@ export const dispatchChatCompletion = async (props: ChatProps): Promise<ChatResp
   temperature = +(modelConstantsData.maxTemperature * (temperature / 10)).toFixed(2);
   temperature = Math.max(temperature, 0.01);
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: modelConstantsData?.openaiAccount ? modelConstantsData.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 

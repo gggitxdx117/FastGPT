@@ -134,8 +134,9 @@ export const dispatchChatCompletion = async (props: ChatProps): Promise<ChatResp
   // FastGPT temperature range: 1~10
   temperature = +(modelConstantsData.maxTemperature * (temperature / 10)).toFixed(2);
   temperature = Math.max(temperature, 0.01);
+  console.log('modelConstantsData', modelConstantsData);
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: modelConstantsData?.openaiAccount ? modelConstantsData?.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 

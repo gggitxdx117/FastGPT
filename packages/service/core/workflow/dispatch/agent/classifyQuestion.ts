@@ -115,7 +115,7 @@ const completions = async ({
   ];
 
   const ai = getAIApi({
-    userKey: user.openaiAccount,
+    userKey: cqModel?.openaiAccount ? cqModel.openaiAccount : user.openaiAccount,
     timeout: 480000
   });
 
