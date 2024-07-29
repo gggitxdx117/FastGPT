@@ -92,6 +92,7 @@ export const runToolWithPromptCall = async (
   // console.log(JSON.stringify(filterMessages, null, 2));
   /* Run llm */
   const ai = getAIApi({
+    userKey: toolModel.openaiAccount,
     timeout: 480000
   });
   const aiResponse = await ai.chat.completions.create(

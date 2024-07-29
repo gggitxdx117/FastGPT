@@ -98,6 +98,7 @@ export const runToolWithToolChoice = async (
 
   /* Run llm */
   const ai = getAIApi({
+    userKey: toolModel.openaiAccount,
     timeout: 480000
   });
   const aiResponse = await ai.chat.completions.create(
