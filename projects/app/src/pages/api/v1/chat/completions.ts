@@ -54,7 +54,10 @@ import { NextAPI } from '@/service/middleware/entry';
 import { getAppLatestVersion } from '@fastgpt/service/core/app/controller';
 import { ReadPermissionVal } from '@fastgpt/global/support/permission/constant';
 import { AppTypeEnum } from '@fastgpt/global/core/app/constants';
-import { updatePluginInputByVariables } from '@fastgpt/global/core/workflow/utils';
+import {
+  removePluginInputVariables,
+  updatePluginInputByVariables
+} from '@fastgpt/global/core/workflow/utils';
 import { getNanoid } from '@fastgpt/global/common/string/tools';
 import {
   getPluginInputsFromStoreNodes,
@@ -235,6 +238,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         )
       : storeNodes2RuntimeNodes(nodes, getDefaultEntryNodeIds(nodes));
 
+    const runtimeVariables = removePluginInputVariables(
+      { ...variables, ...{ customInputs: JSON.stringify({ text, files }) } },
+      storeNodes2RuntimeNodes(nodes, getDefaultEntryNodeIds(nodes))
+    );
+
     /* start flow controller */
     const { flowResponses, flowUsages, assistantResponses, newVariables } = await (async () => {
       if (app.version === 'v2') {
@@ -249,7 +257,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           responseChatItemId,
           runtimeNodes,
           runtimeEdges: initWorkflowEdgeStatus(edges),
-          variables: { ...variables, ...{ customInputs: JSON.stringify({ text, files }) } },
+          variables: runtimeVariables,
           query: removeEmptyUserInput(userQuestion.value),
           histories: newHistories,
           stream,
@@ -539,7 +547,7 @@ const authHeaderRequest = async ({
         canWrite: apiKeyCanWrite
       };
     } else {
-      // token auth
+      // token_auth
       if (!appId) {
         return Promise.reject('appId is empty');
       }

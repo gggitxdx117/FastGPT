@@ -31,6 +31,7 @@ export type FlowNodeCommonType = {
   avatar?: string;
   name: string;
   intro?: string; // template list intro
+  inputExplanationUrl?: string;
   showStatus?: boolean; // chatting response step status
   version: string;
 
@@ -70,7 +71,7 @@ export type FlowNodeTemplateType = FlowNodeCommonType & {
 export type NodeTemplateListItemType = {
   id: string; // 系统节点-系统节点的 id， 系统插件-插件的 id，团队应用的 id
   flowNodeType: FlowNodeTypeEnum; // render node card
-  parentId?: string;
+  parentId?: ParentIdType;
   isFolder?: boolean;
   templateType: FlowNodeTemplateTypeEnum;
   avatar?: string;
@@ -79,6 +80,7 @@ export type NodeTemplateListItemType = {
   isTool?: boolean;
   author?: string;
   unique?: boolean; // 唯一的
+  currentCost?: number; // 当前积分消耗
 };
 
 export type NodeTemplateListType = {

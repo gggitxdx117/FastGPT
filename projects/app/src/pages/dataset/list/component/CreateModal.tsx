@@ -8,7 +8,7 @@ import { useToast } from '@fastgpt/web/hooks/useToast';
 import { useRouter } from 'next/router';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useRequest } from '@fastgpt/web/hooks/useRequest';
-import Avatar from '@/components/Avatar';
+import Avatar from '@fastgpt/web/components/common/Avatar';
 import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import { postCreateDataset } from '@/web/core/dataset/api';
@@ -20,7 +20,6 @@ import { MongoImageTypeEnum } from '@fastgpt/global/common/file/image/constants'
 import AIModelSelector from '@/components/Select/AIModelSelector';
 import { useI18n } from '@/web/context/I18n';
 import QuestionTip from '@fastgpt/web/components/common/MyTooltip/QuestionTip';
-import { DatasetDefaultPermissionVal } from '@fastgpt/global/support/permission/dataset/constant';
 import { useSystem } from '@fastgpt/web/hooks/useSystem';
 
 const CreateModal = ({ onClose, parentId }: { onClose: () => void; parentId?: string }) => {
@@ -41,8 +40,7 @@ const CreateModal = ({ onClose, parentId }: { onClose: () => void; parentId?: st
       name: '',
       intro: '',
       vectorModel: filterNotHiddenVectorModelList[0].model,
-      agentModel: datasetModelList[0].model,
-      defaultPermission: DatasetDefaultPermissionVal
+      agentModel: datasetModelList[0].model
     }
   });
   const avatar = watch('avatar');
@@ -125,22 +123,22 @@ const CreateModal = ({ onClose, parentId }: { onClose: () => void; parentId?: st
             gridTemplateColumns={'repeat(1,1fr)'}
             list={[
               {
-                title: datasetT('Common Dataset'),
+                title: datasetT('common_dataset'),
                 value: DatasetTypeEnum.dataset,
                 icon: 'core/dataset/commonDataset',
-                desc: datasetT('Common Dataset Desc')
+                desc: datasetT('common_dataset_desc')
               },
               {
-                title: datasetT('Website Dataset'),
+                title: datasetT('website_dataset'),
                 value: DatasetTypeEnum.websiteDataset,
                 icon: 'core/dataset/websiteDataset',
-                desc: datasetT('Website Dataset Desc')
+                desc: datasetT('website_dataset_desc')
               },
               {
-                title: datasetT('External File'),
+                title: datasetT('external_file'),
                 value: DatasetTypeEnum.externalFile,
                 icon: 'core/dataset/externalDataset',
-                desc: datasetT('External file Dataset Desc')
+                desc: datasetT('external_file_dataset_desc')
               }
             ]}
             value={datasetType}

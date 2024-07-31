@@ -1,17 +1,37 @@
 /* Auth app permission */
 import { MongoApp } from '../../../core/app/schema';
 import { AppDetailType } from '@fastgpt/global/core/app/type.d';
-import { AuthPropsType } from '../type/auth.d';
 import { parseHeaderCert } from '../controller';
 import { PerResourceTypeEnum } from '@fastgpt/global/support/permission/constant';
 import { AppErrEnum } from '@fastgpt/global/common/error/code/app';
 import { getTmbInfoByTmbId } from '../../user/team/controller';
 import { getResourcePermission } from '../controller';
 import { AppPermission } from '@fastgpt/global/support/permission/app/controller';
-import { AuthResponseType } from '../type/auth.d';
 import { PermissionValueType } from '@fastgpt/global/support/permission/type';
 import { AppFolderTypeList } from '@fastgpt/global/core/app/constants';
 import { ParentIdType } from '@fastgpt/global/common/parentFolder/type';
+import { splitCombinePluginId } from '../../../core/app/plugin/controller';
+import { PluginSourceEnum } from '@fastgpt/global/core/plugin/constants';
+import { AuthModeType, AuthResponseType } from '../type';
+
+export const authPluginByTmbId = async ({
+  tmbId,
+  appId,
+  per
+}: {
+  tmbId: string;
+  appId: string;
+  per: PermissionValueType;
+}) => {
+  const { source } = await splitCombinePluginId(appId);
+  if (source === PluginSourceEnum.personal) {
+    await authAppByTmbId({
+      appId,
+      tmbId,
+      per
+    });
+  }
+};
 
 export const authAppByTmbId = async ({
   tmbId,
@@ -91,8 +111,9 @@ export const authApp = async ({
   appId,
   per,
   ...props
-}: AuthPropsType & {
+}: AuthModeType & {
   appId: ParentIdType;
+  per: PermissionValueType;
 }): Promise<
   AuthResponseType & {
     app: AppDetailType;

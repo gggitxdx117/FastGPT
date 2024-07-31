@@ -104,7 +104,7 @@ const MyApps = () => {
         <Input
           value={searchKey}
           onChange={(e) => setSearchKey(e.target.value)}
-          placeholder={appT('Search app')}
+          placeholder={appT('search_app')}
           maxLength={30}
           bg={'white'}
         />
@@ -132,8 +132,9 @@ const MyApps = () => {
         </Box>
       )}
       <Flex gap={5} flex={'1 0 0'} h={0}>
-        <Box
+        <Flex
           flex={'1 0 0'}
+          flexDirection={'column'}
           h={'100%'}
           pr={folderDetail ? [4, 2] : [4, 10]}
           pl={3}
@@ -237,7 +238,7 @@ const MyApps = () => {
           <MyBox flex={'1 0 0'} isLoading={myApps.length === 0 && isFetchingApps}>
             <List />
           </MyBox>
-        </Box>
+        </Flex>
 
         {/* Folder slider */}
         {!!folderDetail && isPc && (
@@ -258,7 +259,7 @@ const MyApps = () => {
                 });
               }}
               onMove={() => setMoveAppId(folderDetail._id)}
-              deleteTip={appT('Confirm delete folder tip')}
+              deleteTip={appT('confirm_delete_folder_tip')}
               onDelete={() => onDeleFolder(folderDetail._id)}
               defaultPer={{
                 value: folderDetail.defaultPermission,

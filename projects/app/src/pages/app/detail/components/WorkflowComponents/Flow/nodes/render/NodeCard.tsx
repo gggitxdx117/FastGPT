@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Button, Card, Flex } from '@chakra-ui/react';
 import MyIcon from '@fastgpt/web/components/common/Icon';
-import Avatar from '@/components/Avatar';
+import Avatar from '@fastgpt/web/components/common/Avatar';
 import type { FlowNodeItemType } from '@fastgpt/global/core/workflow/type/node.d';
 import { useTranslation } from 'next-i18next';
 import { useEditTitle } from '@/web/common/hooks/useEditTitle';
@@ -80,27 +80,36 @@ const NodeCard = (props: Props) => {
 
   const node = nodeList.find((node) => node.nodeId === nodeId);
   const { openConfirm: onOpenConfirmSync, ConfirmModal: ConfirmSyncModal } = useConfirm({
-    content: appT('module.Confirm Sync')
+    content: t('app:module.Confirm Sync')
   });
 
-  const { data: newNodeVersion, runAsync: getNodeVersion } = useRequest2(
+  const { data: nodeTemplate, runAsync: getNodeLatestTemplate } = useRequest2(
     async () => {
       if (node?.flowNodeType === FlowNodeTypeEnum.pluginModule) {
         if (!node?.pluginId) return;
         const template = await getPreviewPluginNode({ appId: node.pluginId });
-        return template.version;
+
+        // Focus update plugin latest inputExplanationUrl
+        onChangeNode({
+          nodeId,
+          type: 'attr',
+          key: 'inputExplanationUrl',
+          value: template.inputExplanationUrl
+        });
+
+        return template;
       } else {
         const template = moduleTemplatesFlat.find(
           (item) => item.flowNodeType === node?.flowNodeType
         );
-        return template?.version;
+        return template;
       }
     },
     {
       manual: false
     }
   );
-  const hasNewVersion = newNodeVersion && newNodeVersion !== node?.version;
+  const hasNewVersion = nodeTemplate && nodeTemplate.version !== node?.version;
 
   const { runAsync: onClickSyncVersion } = useRequest2(
     async () => {
@@ -119,10 +128,10 @@ const NodeCard = (props: Props) => {
           node: getLatestNodeTemplate(node, template)
         });
       }
-      await getNodeVersion();
+      await getNodeLatestTemplate();
     },
     {
-      refreshDeps: [node, nodeId, onResetNode, getNodeVersion]
+      refreshDeps: [node, nodeId, onResetNode, getNodeLatestTemplate]
     }
   );
 
@@ -137,7 +146,7 @@ const NodeCard = (props: Props) => {
 
           {/* avatar and name */}
           <Flex alignItems={'center'}>
-            <Avatar src={avatar} borderRadius={'0'} objectFit={'contain'} w={'30px'} h={'30px'} />
+            <Avatar src={avatar} borderRadius={'sm'} objectFit={'contain'} w={'30px'} h={'30px'} />
             <Box ml={3} fontSize={'md'} fontWeight={'medium'}>
               {t(name as any)}
             </Box>
@@ -564,8 +573,8 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
             top={0}
             zIndex={10}
             w={'420px'}
-            maxH={'100%'}
             minH={'300px'}
+            maxH={'100%'}
             border={'base'}
           >
             {/* Status header */}
@@ -605,7 +614,7 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
               )}
             </Flex>
             {/* Show result */}
-            <Box maxH={'calc(100%-54px)'} overflow={'auto'}>
+            <Box overflowY={'auto'}>
               {!debugResult.message && !response && (
                 <EmptyTip text={t('common:core.workflow.debug.Not result')} pt={2} pb={5} />
               )}
@@ -614,7 +623,9 @@ const NodeDebugResponse = React.memo(function NodeDebugResponse({
                   {debugResult.message}
                 </Box>
               )}
-              {response && <ResponseBox response={[response]} showDetail hideTabs />}
+              {response && (
+                <ResponseBox useMobile={true} response={[response]} showDetail hideTabs />
+              )}
             </Box>
           </Card>
         )}

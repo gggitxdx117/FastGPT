@@ -29,12 +29,14 @@ export const iconPaths = {
   'common/gitLight': () => import('./icons/common/gitLight.svg'),
   'common/googleFill': () => import('./icons/common/googleFill.svg'),
   'common/importLight': () => import('./icons/common/importLight.svg'),
+  'common/info': () => import('./icons/common/info.svg'),
   'common/inviteLight': () => import('./icons/common/inviteLight.svg'),
   'common/language/en': () => import('./icons/common/language/en.svg'),
   'common/language/zh': () => import('./icons/common/language/zh.svg'),
   'common/leftArrowLight': () => import('./icons/common/leftArrowLight.svg'),
   'common/linkBlue': () => import('./icons/common/linkBlue.svg'),
   'common/loading': () => import('./icons/common/loading.svg'),
+  'common/logLight': () => import('./icons/common/logLight.svg'),
   'common/navbar/pluginFill': () => import('./icons/common/navbar/pluginFill.svg'),
   'common/navbar/pluginLight': () => import('./icons/common/navbar/pluginLight.svg'),
   'common/openai': () => import('./icons/common/openai.svg'),
@@ -100,6 +102,9 @@ export const iconPaths = {
   'core/chat/chatFill': () => import('./icons/core/chat/chatFill.svg'),
   'core/chat/chatLight': () => import('./icons/core/chat/chatLight.svg'),
   'core/chat/chatModelTag': () => import('./icons/core/chat/chatModelTag.svg'),
+  'core/chat/chevronDown': () => import('./icons/core/chat/chevronDown.svg'),
+  'core/chat/chevronSelector': () => import('./icons/core/chat/chevronSelector.svg'),
+  'core/chat/chevronUp': () => import('./icons/core/chat/chevronUp.svg'),
   'core/chat/export/pdf': () => import('./icons/core/chat/export/pdf.svg'),
   'core/chat/feedback/badLight': () => import('./icons/core/chat/feedback/badLight.svg'),
   'core/chat/feedback/goodLight': () => import('./icons/core/chat/feedback/goodLight.svg'),
@@ -111,6 +116,7 @@ export const iconPaths = {
   'core/chat/sendFill': () => import('./icons/core/chat/sendFill.svg'),
   'core/chat/sendLight': () => import('./icons/core/chat/sendLight.svg'),
   'core/chat/setTopLight': () => import('./icons/core/chat/setTopLight.svg'),
+  'core/chat/sideLine': () => import('./icons/core/chat/sideLine.svg'),
   'core/chat/speaking': () => import('./icons/core/chat/speaking.svg'),
   'core/chat/stopSpeech': () => import('./icons/core/chat/stopSpeech.svg'),
   'core/dataset/commonDataset': () => import('./icons/core/dataset/commonDataset.svg'),
@@ -163,6 +169,46 @@ export const iconPaths = {
   'core/workflow/runSkip': () => import('./icons/core/workflow/runSkip.svg'),
   'core/workflow/runSuccess': () => import('./icons/core/workflow/runSuccess.svg'),
   'core/workflow/running': () => import('./icons/core/workflow/running.svg'),
+  'core/workflow/template/FileRead': () => import('./icons/core/workflow/template/FileRead.svg'),
+  'core/workflow/template/aiChat': () => import('./icons/core/workflow/template/aiChat.svg'),
+  'core/workflow/template/codeRun': () => import('./icons/core/workflow/template/codeRun.svg'),
+  'core/workflow/template/customFeedback': () =>
+    import('./icons/core/workflow/template/customFeedback.svg'),
+  'core/workflow/template/datasetConcat': () =>
+    import('./icons/core/workflow/template/datasetConcat.svg'),
+  'core/workflow/template/datasetSearch': () =>
+    import('./icons/core/workflow/template/datasetSearch.svg'),
+  'core/workflow/template/duckduckgo': () =>
+    import('./icons/core/workflow/template/duckduckgo.svg'),
+  'core/workflow/template/extractJson': () =>
+    import('./icons/core/workflow/template/extractJson.svg'),
+  'core/workflow/template/fetchUrl': () => import('./icons/core/workflow/template/fetchUrl.svg'),
+  'core/workflow/template/getTime': () => import('./icons/core/workflow/template/getTime.svg'),
+  'core/workflow/template/httpRequest': () =>
+    import('./icons/core/workflow/template/httpRequest.svg'),
+  'core/workflow/template/ifelse': () => import('./icons/core/workflow/template/ifelse.svg'),
+  'core/workflow/template/lafDispatch': () =>
+    import('./icons/core/workflow/template/lafDispatch.svg'),
+  'core/workflow/template/mathCall': () => import('./icons/core/workflow/template/mathCall.svg'),
+  'core/workflow/template/pluginOutput': () =>
+    import('./icons/core/workflow/template/pluginOutput.svg'),
+  'core/workflow/template/queryExtension': () =>
+    import('./icons/core/workflow/template/queryExtension.svg'),
+  'core/workflow/template/questionClassify': () =>
+    import('./icons/core/workflow/template/questionClassify.svg'),
+  'core/workflow/template/reply': () => import('./icons/core/workflow/template/reply.svg'),
+  'core/workflow/template/runApp': () => import('./icons/core/workflow/template/runApp.svg'),
+  'core/workflow/template/stopTool': () => import('./icons/core/workflow/template/stopTool.svg'),
+  'core/workflow/template/systemConfig': () =>
+    import('./icons/core/workflow/template/systemConfig.svg'),
+  'core/workflow/template/textConcat': () =>
+    import('./icons/core/workflow/template/textConcat.svg'),
+  'core/workflow/template/toolCall': () => import('./icons/core/workflow/template/toolCall.svg'),
+  'core/workflow/template/variable': () => import('./icons/core/workflow/template/variable.svg'),
+  'core/workflow/template/variableUpdate': () =>
+    import('./icons/core/workflow/template/variableUpdate.svg'),
+  'core/workflow/template/workflowStart': () =>
+    import('./icons/core/workflow/template/workflowStart.svg'),
   'core/workflow/versionHistories': () => import('./icons/core/workflow/versionHistories.svg'),
   date: () => import('./icons/date.svg'),
   delete: () => import('./icons/delete.svg'),
@@ -206,6 +252,8 @@ export const iconPaths = {
   'phoneTabbar/me': () => import('./icons/phoneTabbar/me.svg'),
   'phoneTabbar/tool': () => import('./icons/phoneTabbar/tool.svg'),
   'phoneTabbar/toolFill': () => import('./icons/phoneTabbar/toolFill.svg'),
+  'plugins/doc2x': () => import('./icons/plugins/doc2x.svg'),
+  'plugins/textEditor': () => import('./icons/plugins/textEditor.svg'),
   'price/bg': () => import('./icons/price/bg.svg'),
   'price/right': () => import('./icons/price/right.svg'),
   save: () => import('./icons/save.svg'),

@@ -136,7 +136,9 @@ export const dispatchChatCompletion = async (props: ChatProps): Promise<ChatResp
   temperature = Math.max(temperature, 0.01);
   console.log('modelConstantsData', modelConstantsData);
   const ai = getAIApi({
-    userKey: modelConstantsData?.openaiAccount ? modelConstantsData?.openaiAccount : user.openaiAccount,
+    userKey: modelConstantsData?.openaiAccount
+      ? modelConstantsData?.openaiAccount
+      : user.openaiAccount,
     timeout: 480000
   });
 
@@ -162,70 +164,86 @@ export const dispatchChatCompletion = async (props: ChatProps): Promise<ChatResp
     stream,
     messages: requestMessages
   };
-  const response = await ai.chat.completions.create(requestBody, {
-    headers: {
-      Accept: 'application/json, text/plain, */*'
-    }
-  });
+  try {
+    const response = await ai.chat.completions.create(requestBody, {
+      headers: {
+        Accept: 'application/json, text/plain, */*'
+      }
+    });
 
-  const { answerText } = await (async () => {
-    if (res && stream) {
-      // sse response
-      const { answer } = await streamResponse({
-        res,
-        detail,
-        stream: response,
-        requestBody
-      });
+    const { answerText } = await (async () => {
+      if (res && stream) {
+        // sse response
+        const { answer } = await streamResponse({
+          res,
+          detail,
+          stream: response
+        });
 
-      return {
-        answerText: answer
-      };
-    } else {
-      const unStreamResponse = response as ChatCompletion;
-      const answer = unStreamResponse.choices?.[0]?.message?.content || '';
+        if (!answer) {
+          throw new Error('LLM model response empty');
+        }
 
-      return {
-        answerText: answer
-      };
-    }
-  })();
+        return {
+          answerText: answer
+        };
+      } else {
+        const unStreamResponse = response as ChatCompletion;
+        const answer = unStreamResponse.choices?.[0]?.message?.content || '';
 
-  const completeMessages = filterMessages.concat({
-    role: ChatCompletionRequestMessageRoleEnum.Assistant,
-    content: answerText
-  });
-  const chatCompleteMessages = GPTMessages2Chats(completeMessages);
+        return {
+          answerText: answer
+        };
+      }
+    })();
 
-  const tokens = await countMessagesTokens(chatCompleteMessages);
-  const { totalPoints, modelName } = formatModelChars2Points({
-    model,
-    tokens,
-    modelType: ModelTypeEnum.llm
-  });
+    const completeMessages = filterMessages.concat({
+      role: ChatCompletionRequestMessageRoleEnum.Assistant,
+      content: answerText
+    });
+    const chatCompleteMessages = GPTMessages2Chats(completeMessages);
 
-  return {
-    answerText,
-    [DispatchNodeResponseKeyEnum.nodeResponse]: {
-      totalPoints: user.openaiAccount?.key ? 0 : totalPoints,
-      model: modelName,
+    const tokens = await countMessagesTokens(chatCompleteMessages);
+    const { totalPoints, modelName } = formatModelChars2Points({
+      model,
       tokens,
-      query: `${userChatInput}`,
-      maxToken: max_tokens,
-      historyPreview: getHistoryPreview(chatCompleteMessages),
-      contextTotalLen: completeMessages.length
-    },
-    [DispatchNodeResponseKeyEnum.nodeDispatchUsages]: [
-      {
-        moduleName: name,
+      modelType: ModelTypeEnum.llm
+    });
+
+    return {
+      answerText,
+      [DispatchNodeResponseKeyEnum.nodeResponse]: {
         totalPoints: user.openaiAccount?.key ? 0 : totalPoints,
         model: modelName,
-        tokens
-      }
-    ],
-    [DispatchNodeResponseKeyEnum.toolResponses]: answerText,
-    history: chatCompleteMessages
-  };
+        tokens,
+        query: `${userChatInput}`,
+        maxToken: max_tokens,
+        historyPreview: getHistoryPreview(chatCompleteMessages),
+        contextTotalLen: completeMessages.length
+      },
+      [DispatchNodeResponseKeyEnum.nodeDispatchUsages]: [
+        {
+          moduleName: name,
+          totalPoints: user.openaiAccount?.key ? 0 : totalPoints,
+          model: modelName,
+          tokens
+        }
+      ],
+      [DispatchNodeResponseKeyEnum.toolResponses]: answerText,
+      history: chatCompleteMessages
+    };
+  } catch (error) {
+    addLog.warn(`LLM response error`, {
+      baseUrl: user.openaiAccount?.baseUrl,
+      requestBody
+    });
+
+    if (user.openaiAccount?.baseUrl) {
+      return Promise.reject(`您的 OpenAI key 出错了: ${JSON.stringify(requestBody)}`);
+    }
+
+    return Promise.reject(error);
+  }
 };
 
 async function filterQuote({
@@ -335,13 +353,11 @@ async function getMaxTokens({
 async function streamResponse({
   res,
   detail,
-  stream,
-  requestBody
+  stream
 }: {
   res: NextApiResponse;
   detail: boolean;
   stream: StreamChatType;
-  requestBody: Record<string, any>;
 }) {
   const write = responseWriteController({
     res,
@@ -363,11 +379,6 @@ async function streamResponse({
         text: content
       })
     });
-  }
-
-  if (!answer) {
-    addLog.info(`LLM model response empty`, requestBody);
-    return Promise.reject('core.chat.Chat API is error or undefined');
   }
 
   return { answer };

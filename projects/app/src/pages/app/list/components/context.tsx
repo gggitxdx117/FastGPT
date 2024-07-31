@@ -14,7 +14,6 @@ import { AppUpdateParams } from '@/global/core/app/api';
 import dynamic from 'next/dynamic';
 import { useI18n } from '@/web/context/I18n';
 import { AppTypeEnum } from '@fastgpt/global/core/app/constants';
-import { useThrottleEffect } from 'ahooks';
 const MoveModal = dynamic(() => import('@/components/common/folder/MoveModal'));
 
 type AppListContextType = {
@@ -157,7 +156,7 @@ const AppListContextProvider = ({ children }: { children: ReactNode }) => {
         <MoveModal
           moveResourceId={moveAppId}
           server={getAppFolderList}
-          title={appT('Move app')}
+          title={appT('move_app')}
           onClose={() => setMoveAppId(undefined)}
           onConfirm={onMoveApp}
         />

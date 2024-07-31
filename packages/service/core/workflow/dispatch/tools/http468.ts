@@ -16,7 +16,7 @@ import { DispatchNodeResultType } from '@fastgpt/global/core/workflow/runtime/ty
 import { getErrText } from '@fastgpt/global/common/error/utils';
 import { responseWrite } from '../../../../common/response';
 import { textAdaptGptResponse } from '@fastgpt/global/core/workflow/runtime/utils';
-import { getCommunityCb } from '@fastgpt/plugins/register';
+import { getSystemPluginCb } from '../../../../../plugins/register';
 
 type PropsArrType = {
   key: string;
@@ -106,6 +106,7 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
     acc[key] = valueTypeFormat(value, WorkflowIOValueTypeEnum.string);
     return acc;
   }, {});
+
   const requestBody = await (() => {
     if (!httpJsonBody) return {};
     try {
@@ -121,9 +122,9 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
 
   try {
     const { formatResponse, rawResponse } = await (async () => {
-      const communityPluginCb = await getCommunityCb();
-      if (communityPluginCb[httpReqUrl]) {
-        const pluginResult = await communityPluginCb[httpReqUrl](requestBody);
+      const systemPluginCb = await getSystemPluginCb();
+      if (systemPluginCb[httpReqUrl]) {
+        const pluginResult = await systemPluginCb[httpReqUrl](requestBody);
         return {
           formatResponse: pluginResult,
           rawResponse: pluginResult
@@ -292,14 +293,14 @@ async function fetchData({
 function replaceVariable(text: string, obj: Record<string, any>) {
   for (const [key, value] of Object.entries(obj)) {
     if (value === undefined) {
-      text = text.replace(new RegExp(`{{${key}}}`, 'g'), UNDEFINED_SIGN);
+      text = text.replace(new RegExp(`{{(${key})}}`, 'g'), UNDEFINED_SIGN);
     } else {
       const replacement = JSON.stringify(value);
       const unquotedReplacement =
         replacement.startsWith('"') && replacement.endsWith('"')
           ? replacement.slice(1, -1)
           : replacement;
-      text = text.replace(new RegExp(`{{${key}}}`, 'g'), unquotedReplacement);
+      text = text.replace(new RegExp(`{{(${key})}}`, 'g'), unquotedReplacement);
     }
   }
   return text || '';
