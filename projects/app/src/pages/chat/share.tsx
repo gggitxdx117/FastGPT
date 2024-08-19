@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Flex, Drawer, DrawerOverlay, DrawerContent } from '@chakra-ui/react';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { streamFetch } from '@/web/common/api/fetch';
 import { useShareChatStore } from '@/web/core/chat/storeShareChat';
 import SideBar from '@/components/SideBar';
@@ -16,7 +15,6 @@ import PageContainer from '@/components/PageContainer';
 import ChatHeader from './components/ChatHeader';
 import ChatHistorySlider from './components/ChatHistorySlider';
 import { serviceSideProps } from '@/web/common/utils/i18n';
-import { checkChatSupportSelectFileByChatModels } from '@/web/core/chat/utils';
 import { useTranslation } from 'next-i18next';
 import { delChatRecordById, getChatHistories, getInitOutLinkChatInfo } from '@/web/core/chat/api';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
@@ -105,7 +103,13 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
   } = useChat();
 
   const startChat = useCallback(
-    async ({ messages, controller, generatingMessage, variables }: StartChatFnProps) => {
+    async ({
+      messages,
+      controller,
+      generatingMessage,
+      variables,
+      responseChatItemId
+    }: StartChatFnProps) => {
       const completionChatId = chatId || getNanoid();
       const histories = messages.slice(-1);
 
@@ -127,6 +131,7 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
             ...variables,
             ...customVariables
           },
+          responseChatItemId,
           shareId,
           chatId: completionChatId,
           appType: chatData.app.type,
@@ -346,7 +351,6 @@ const OutLink = ({ appName, appIntro, appAvatar }: Props) => {
                   appAvatar={chatData.app.avatar}
                   userAvatar={chatData.userAvatar}
                   chatConfig={chatData.app?.chatConfig}
-                  showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
                   feedbackType={'user'}
                   onStartChat={startChat}
                   onDelMessage={({ contentId }) =>
@@ -423,7 +427,7 @@ export async function getServerSideProps(context: any) {
       appIntro: app?.appId?.intro ?? 'intro',
       shareId: shareId ?? '',
       authToken: authToken ?? '',
-      ...(await serviceSideProps(context, ['file', 'app']))
+      ...(await serviceSideProps(context, ['file', 'app', 'chat', 'workflow']))
     }
   };
 }
