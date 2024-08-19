@@ -270,7 +270,7 @@ const ChatInput = ({
     async (text: any) => {
       resetInputVal({ text });
     },
-    [TextareaDom, fileList, resetInputVal, replaceFile]
+    [TextareaDom, fileList, resetInputVal]
   );
 
   const searchRegExp = function (nameVal: any) {
