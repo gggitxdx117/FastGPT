@@ -484,7 +484,7 @@
       "Send Message": "发送",
       "Speaking": "我在听，请说...",
       "Start Chat": "开始对话",
-      "Type a message": "请输入问题，Enter 发送，Shift + Enter 换行，/ 触发场景补全",
+      "Type a message": "请输入问题，Enter 发送，Shift/Ctrl + Enter 换行",
       "Unpin": "取消置顶",
       "You need to a chat app": "你没有可用的应用",
       "error": {
