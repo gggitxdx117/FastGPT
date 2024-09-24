@@ -124,7 +124,8 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
     dispatchFlowResponse, // tool flow response
     totalTokens,
     completeMessages = [], // The actual message sent to AI(just save text)
-    assistantResponses = [] // FastGPT system store assistant.value response
+    assistantResponses = [], // FastGPT system store assistant.value response
+    runTimes
   } = await (async () => {
     const adaptMessages = chats2GPTMessages({ messages, reserveId: false });
 
@@ -133,6 +134,7 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
         ...props,
         toolNodes,
         toolModel,
+        maxRunToolTimes: 30,
         messages: adaptMessages
       });
     }
@@ -193,6 +195,7 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
   const previewAssistantResponses = filterToolResponseToPreview(assistantResponses);
 
   return {
+    [DispatchNodeResponseKeyEnum.runTimes]: runTimes,
     [NodeOutputKeyEnum.answerText]: previewAssistantResponses
       .filter((item) => item.text?.content)
       .map((item) => item.text?.content || '')

@@ -11,7 +11,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       feConfigs: global.feConfigs,
       presetPromptlist: global.presetPromptlist,
       subPlans: global.subPlans,
-      llmModels: global.llmModels,
+      llmModels: global.llmModels.map((model) => ({
+        ...model,
+        customCQPrompt: '',
+        customExtractPrompt: '',
+        defaultSystemChatPrompt: ''
+      })),
       vectorModels: global.vectorModels,
       reRankModels:
         global.reRankModels?.map((item) => ({

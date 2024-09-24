@@ -7,11 +7,7 @@ import RenderInput from './render/RenderInput';
 import { Box, Button, Flex, HStack } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
 import { SmallAddIcon } from '@chakra-ui/icons';
-import {
-  WorkflowIOValueTypeEnum,
-  NodeInputKeyEnum,
-  VARIABLE_NODE_ID
-} from '@fastgpt/global/core/workflow/constants';
+import { NodeInputKeyEnum, VARIABLE_NODE_ID } from '@fastgpt/global/core/workflow/constants';
 import { getOneQuoteInputTemplate } from '@fastgpt/global/core/workflow/template/system/datasetConcat';
 import { FlowNodeTypeEnum } from '@fastgpt/global/core/workflow/node/constant';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
@@ -41,20 +37,20 @@ const NodeDatasetConcat = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
   const quoteList = useMemo(() => inputs.filter((item) => item.canEdit), [inputs]);
 
   const tokenLimit = useMemo(() => {
-    let maxTokens = 3000;
+    let maxTokens = 13000;
 
     nodeList.forEach((item) => {
-      if (item.flowNodeType === FlowNodeTypeEnum.chatNode) {
+      if ([FlowNodeTypeEnum.chatNode, FlowNodeTypeEnum.tools].includes(item.flowNodeType)) {
         const model =
           item.inputs.find((item) => item.key === NodeInputKeyEnum.aiModel)?.value || '';
-        const quoteMaxToken = getWebLLMModel(model)?.quoteMaxToken || 3000;
+        const quoteMaxToken = getWebLLMModel(model)?.quoteMaxToken || 13000;
 
         maxTokens = Math.max(maxTokens, quoteMaxToken);
       }
     });
 
     return maxTokens;
-  }, [llmModelList, nodeList]);
+  }, [nodeList, llmModelList]);
 
   const CustomComponent = useMemo(() => {
     return {
@@ -187,9 +183,9 @@ function Reference({
   return (
     <>
       <Flex alignItems={'center'} mb={1}>
-        <FormLabel required={inputChildren.required}>{inputChildren.label}</FormLabel>
+        <FormLabel required={inputChildren.required}>{t(inputChildren.label as any)}</FormLabel>
         {/* value */}
-        <ValueTypeLabel valueType={inputChildren.valueType} />
+        <ValueTypeLabel valueType={inputChildren.valueType} valueDesc={inputChildren.valueDesc} />
 
         <MyIcon
           className="delete"

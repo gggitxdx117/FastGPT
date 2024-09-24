@@ -13,13 +13,12 @@ import {
   ModalBody,
   HStack
 } from '@chakra-ui/react';
+import Avatar from '@fastgpt/web/components/common/Avatar';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useTranslation } from 'next-i18next';
 import { getAppChatLogs } from '@/web/core/app/api';
 import dayjs from 'dayjs';
 import { ChatSourceMap } from '@fastgpt/global/core/chat/constants';
-import { AppLogsListItemType } from '@/types/app';
-import { useSystemStore } from '@/web/common/system/useSystemStore';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import { addDays } from 'date-fns';
 import { usePagination } from '@fastgpt/web/hooks/usePagination';
@@ -32,6 +31,8 @@ import { cardStyles } from '../constants';
 
 import dynamic from 'next/dynamic';
 import { useSystem } from '@fastgpt/web/hooks/useSystem';
+import { useUserStore } from '@/web/support/user/useUserStore';
+import Tag from '@fastgpt/web/components/common/Tag';
 const DetailLogsModal = dynamic(() => import('./DetailLogsModal'));
 
 const Logs = () => {
@@ -40,6 +41,7 @@ const Logs = () => {
   const { isPc } = useSystem();
 
   const appId = useContextSelector(AppContext, (v) => v.appId);
+  const { teamMembers } = useUserStore();
 
   const [dateRange, setDateRange] = useState<DateRangeType>({
     from: addDays(new Date(), -7),
@@ -58,7 +60,7 @@ const Logs = () => {
     Pagination,
     getData,
     pageNum
-  } = usePagination<AppLogsListItemType>({
+  } = usePagination({
     api: getAppChatLogs,
     pageSize: 20,
     params: {
@@ -71,35 +73,33 @@ const Logs = () => {
   const [detailLogsId, setDetailLogsId] = useState<string>();
 
   return (
-    <>
-      <Box {...cardStyles} boxShadow={2} px={[4, 8]} py={[4, 6]}>
-        {isPc && (
-          <>
-            <Box fontWeight={'bold'} fontSize={['md', 'lg']} mb={2}>
-              {appT('chat_logs')}
+    <Flex flexDirection={'column'} h={'100%'}>
+      {isPc && (
+        <Box {...cardStyles} boxShadow={2} px={[4, 8]} py={[4, 6]}>
+          <Box fontWeight={'bold'} fontSize={['md', 'lg']} mb={2}>
+            {appT('chat_logs')}
+          </Box>
+          <Box color={'myGray.500'} fontSize={'sm'}>
+            {appT('chat_logs_tips')},{' '}
+            <Box
+              as={'span'}
+              mr={2}
+              textDecoration={'underline'}
+              cursor={'pointer'}
+              onClick={onOpenMarkDesc}
+            >
+              {t('common:core.chat.Read Mark Description')}
             </Box>
-            <Box color={'myGray.500'} fontSize={'sm'}>
-              {appT('chat_logs_tips')},{' '}
-              <Box
-                as={'span'}
-                mr={2}
-                textDecoration={'underline'}
-                cursor={'pointer'}
-                onClick={onOpenMarkDesc}
-              >
-                {t('common:core.chat.Read Mark Description')}
-              </Box>
-            </Box>
-          </>
-        )}
-      </Box>
+          </Box>
+        </Box>
+      )}
 
       {/* table */}
       <Flex
         flexDirection={'column'}
         {...cardStyles}
         boxShadow={3.5}
-        mt={4}
+        mt={[0, 4]}
         px={[4, 8]}
         py={[4, 6]}
         flex={'1 0 0'}
@@ -109,11 +109,12 @@ const Logs = () => {
             <Thead>
               <Tr>
                 <Th>{t('common:core.app.logs.Source And Time')}</Th>
-                <Th>{appT('logs_title')}</Th>
-                <Th>{appT('logs_message_total')}</Th>
-                <Th>{appT('feedback_count')}</Th>
+                <Th>{t('app:logs_chat_user')}</Th>
+                <Th>{t('app:logs_title')}</Th>
+                <Th>{t('app:logs_message_total')}</Th>
+                <Th>{t('app:feedback_count')}</Th>
                 <Th>{t('common:core.app.feedback.Custom feedback')}</Th>
-                <Th>{appT('mark_count')}</Th>
+                <Th>{t('app:mark_count')}</Th>
               </Tr>
             </Thead>
             <Tbody fontSize={'xs'}>
@@ -128,6 +129,23 @@ const Logs = () => {
                   <Td>
                     <Box>{t(ChatSourceMap[item.source]?.name || ('UnKnow' as any))}</Box>
                     <Box color={'myGray.500'}>{dayjs(item.time).format('YYYY/MM/DD HH:mm')}</Box>
+                  </Td>
+                  <Td>
+                    <Box>
+                      {item.source === 'share' ? (
+                        item.outLinkUid
+                      ) : (
+                        <Tag key={item._id} type={'fill'} colorSchema="white">
+                          <Avatar
+                            src={teamMembers.find((v) => v.tmbId === item.tmbId)?.avatar}
+                            w="1.25rem"
+                          />
+                          <Box fontSize={'sm'} ml={1}>
+                            {teamMembers.find((v) => v.tmbId === item.tmbId)?.memberName}
+                          </Box>
+                        </Tag>
+                      )}
+                    </Box>
                   </Td>
                   <Td className="textEllipsis" maxW={'250px'}>
                     {item.title}
@@ -214,7 +232,7 @@ const Logs = () => {
       >
         <ModalBody whiteSpace={'pre-wrap'}>{t('common:core.chat.Mark Description')}</ModalBody>
       </MyModal>
-    </>
+    </Flex>
   );
 };
 

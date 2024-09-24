@@ -2,8 +2,9 @@ import { ChatNodeUsageType } from '../../../support/wallet/bill/type';
 import {
   ChatItemType,
   UserChatItemValueItemType,
-  ChatItemValueItemType,
-  ToolRunResponseItemType
+  ToolRunResponseItemType,
+  NodeOutputItemType,
+  AIChatItemValueItemType
 } from '../../chat/type';
 import { FlowNodeInputItemType, FlowNodeOutputItemType } from '../type/io.d';
 import { StoreNodeItemType } from '../type/node';
@@ -17,16 +18,23 @@ import { AppDetailType, AppSchema } from '../../app/type';
 import { RuntimeNodeItemType } from '../runtime/type';
 import { RuntimeEdgeItemType } from './edge';
 import { ReadFileNodeResponse } from '../template/system/readFiles/type';
+import { UserSelectOptionType } from '../template/system/userSelect/type';
+import { WorkflowResponseType } from '../../../../service/core/workflow/dispatch/type';
 
 /* workflow props */
 export type ChatDispatchProps = {
   res?: NextApiResponse;
   requestOrigin?: string;
   mode: 'test' | 'chat' | 'debug';
-  teamId: string;
-  tmbId: string;
   user: UserModelSchema;
-  app: AppDetailType | AppSchema;
+
+  runningAppInfo: {
+    id: string; // May be the id of the system plug-in (cannot be used directly to look up the table)
+    teamId: string;
+    tmbId: string; // App tmbId
+  };
+  uid: string; // Who run this workflow
+
   chatId?: string;
   responseChatItemId?: string;
   histories: ChatItemType[];
@@ -34,10 +42,10 @@ export type ChatDispatchProps = {
   query: UserChatItemValueItemType[]; // trigger query
   chatConfig: AppSchema['chatConfig'];
   stream: boolean;
-  detail: boolean; // response detail
-  responseDetail: boolean;
   maxRunTimes: number;
   isToolCall?: boolean;
+  workflowStreamResponse?: WorkflowResponseType;
+  workflowDispatchDeep?: number;
 };
 
 export type ModuleDispatchProps<T> = ChatDispatchProps & {
@@ -48,10 +56,12 @@ export type ModuleDispatchProps<T> = ChatDispatchProps & {
 };
 
 export type SystemVariablesType = {
+  userId: string;
   appId: string;
   chatId?: string;
   responseChatItemId?: string;
   histories: ChatItemType[];
+  cTime: string;
 };
 
 /* node props */
@@ -67,7 +77,7 @@ export type RuntimeNodeItemType = {
   inputs: FlowNodeInputItemType[];
   outputs: FlowNodeOutputItemType[];
 
-  pluginId?: string;
+  pluginId?: string; // workflow id / plugin id
 };
 
 export type PluginRuntimeType = {
@@ -94,6 +104,8 @@ export type DispatchNodeResponseType = {
   error?: Record<string, any>;
   customInputs?: Record<string, any>;
   customOutputs?: Record<string, any>;
+  nodeInputs?: Record<string, any>;
+  nodeOutputs?: Record<string, any>;
 
   // bill
   tokens?: number;
@@ -129,7 +141,7 @@ export type DispatchNodeResponseType = {
 
   // http
   params?: Record<string, any>;
-  body?: Record<string, any>;
+  body?: Record<string, any> | string;
   headers?: Record<string, any>;
   httpResult?: Record<string, any>;
 
@@ -154,15 +166,23 @@ export type DispatchNodeResponseType = {
   // read files
   readFilesResult?: string;
   readFiles?: ReadFileNodeResponse;
+
+  // user select
+  userSelectResult?: string;
+
+  // update var
+  updateVarResult?: any[];
 };
 
-export type DispatchNodeResultType<T> = {
+export type DispatchNodeResultType<T = {}> = {
   [DispatchNodeResponseKeyEnum.skipHandleId]?: string[]; // skip some edge handle id
   [DispatchNodeResponseKeyEnum.nodeResponse]?: DispatchNodeResponseType; // The node response detail
-  [DispatchNodeResponseKeyEnum.nodeDispatchUsages]?: ChatNodeUsageType[]; //
-  [DispatchNodeResponseKeyEnum.childrenResponses]?: DispatchNodeResultType[];
-  [DispatchNodeResponseKeyEnum.toolResponses]?: ToolRunResponseItemType;
-  [DispatchNodeResponseKeyEnum.assistantResponses]?: ChatItemValueItemType[];
+  [DispatchNodeResponseKeyEnum.nodeDispatchUsages]?: ChatNodeUsageType[]; // Node total usage
+  [DispatchNodeResponseKeyEnum.childrenResponses]?: DispatchNodeResultType[]; // Children node response
+  [DispatchNodeResponseKeyEnum.toolResponses]?: ToolRunResponseItemType; // Tool response
+  [DispatchNodeResponseKeyEnum.assistantResponses]?: AIChatItemValueItemType[]; // Assistant response(Store to db)
+  [DispatchNodeResponseKeyEnum.rewriteHistories]?: ChatItemType[];
+  [DispatchNodeResponseKeyEnum.runTimes]?: number;
 } & T;
 
 /* Single node props */
