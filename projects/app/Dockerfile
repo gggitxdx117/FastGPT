@@ -1,8 +1,17 @@
+# sudo docker build -f /home/ubuntu/fastgpt/fastgpt.gpt/projects/app/Dockerfile -t dockername/fastgpt:v4.8.11 --build-arg proxy=1 --build-arg https_proxy=http://172.16.1.11:7890 --build-arg http_proxy=http://172.16.1.11:7890 --build-arg all_proxy=socks5://172.16.1.11:7891 /home/ubuntu/fastgpt/fastgpt.gpt/
+
 # --------- install dependence -----------
 FROM node:20.14.0-alpine AS maindeps
 WORKDIR /app
 
 ARG proxy
+ARG https_proxy
+ARG http_proxy
+ARG all_proxy
+
+ENV https_proxy=${https_proxy}
+ENV http_proxy=${http_proxy}
+ENV all_proxy=${all_proxy}
 
 RUN [ -z "$proxy" ] || sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache libc6-compat && npm install -g pnpm@9.4.0
@@ -23,6 +32,13 @@ FROM node:20.14.0-alpine AS builder
 WORKDIR /app
 
 ARG proxy
+ARG https_proxy
+ARG http_proxy
+ARG all_proxy
+
+ENV https_proxy=${https_proxy}
+ENV http_proxy=${http_proxy}
+ENV all_proxy=${all_proxy}
 
 # copy common node_modules and one project node_modules
 COPY package.json pnpm-workspace.yaml .npmrc tsconfig.json ./
@@ -43,6 +59,13 @@ FROM node:20.14.0-alpine AS runner
 WORKDIR /app
 
 ARG proxy
+ARG https_proxy
+ARG http_proxy
+ARG all_proxy
+
+ENV https_proxy=${https_proxy}
+ENV http_proxy=${http_proxy}
+ENV all_proxy=${all_proxy}
 
 # create user and use it
 RUN addgroup --system --gid 1001 nodejs
@@ -66,7 +89,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/projects/app/.next/server/worker 
 COPY --from=maindeps /app/node_modules/tiktoken ./node_modules/tiktoken
 RUN rm -rf ./node_modules/tiktoken/encoders
 COPY --from=maindeps /app/node_modules/@zilliz/milvus2-sdk-node ./node_modules/@zilliz/milvus2-sdk-node
-
 
 # copy package.json to version file
 COPY --from=builder /app/projects/app/package.json ./package.json 
