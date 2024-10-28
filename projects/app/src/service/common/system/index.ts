@@ -5,19 +5,17 @@ import type { FastGPTConfigFileType } from '@fastgpt/global/common/system/types/
 import { PluginSourceEnum } from '@fastgpt/global/core/plugin/constants';
 import { getFastGPTConfigFromDB } from '@fastgpt/service/common/system/config/controller';
 import { PluginTemplateType } from '@fastgpt/global/core/plugin/type';
-import { FastGPTProUrl } from '@fastgpt/service/common/system/constants';
+import { FastGPTProUrl, isProduction } from '@fastgpt/service/common/system/constants';
 import { initFastGPTConfig } from '@fastgpt/service/common/system/tools';
 import json5 from 'json5';
 import { SystemPluginTemplateItemType } from '@fastgpt/global/core/workflow/type';
 
 export const readConfigData = (name: string) => {
-  const isDev = process.env.NODE_ENV === 'development';
-
   const splitName = name.split('.');
   const devName = `${splitName[0]}.local.${splitName[1]}`;
 
   const filename = (() => {
-    if (isDev) {
+    if (!isProduction) {
       // check local file exists
       const hasLocalFile = existsSync(`data/${devName}`);
       if (hasLocalFile) {
@@ -59,8 +57,8 @@ export async function getInitConfig() {
 const defaultFeConfigs: FastGPTFeConfigsType = {
   show_emptyChat: true,
   show_git: true,
-  docUrl: 'https://doc.fastgpt.in',
-  openAPIDocUrl: 'https://doc.fastgpt.in/docs/development/openapi',
+  docUrl: 'https://doc.tryfastgpt.ai',
+  openAPIDocUrl: 'https://doc.tryfastgpt.ai/docs/development/openapi',
   systemPluginCourseUrl: 'https://fael3z0zfze.feishu.cn/wiki/ERZnw9R26iRRG0kXZRec6WL9nwh',
   appTemplateCourse:
     'https://fael3z0zfze.feishu.cn/wiki/CX9wwMGyEi5TL6koiLYcg7U0nWb?fromScene=spaceOverview',

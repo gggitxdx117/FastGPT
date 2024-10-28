@@ -49,7 +49,6 @@ const Markdown = ({
     () => ({
       img: Image,
       pre: RewritePre,
-      p: (pProps: any) => <p {...pProps} dir="auto" />,
       code: Code,
       a: (pProps: any) => (
         <a

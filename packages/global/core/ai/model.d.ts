@@ -28,7 +28,8 @@ export type LLMModelItemType = {
   defaultSystemChatPrompt?: string;
   defaultConfig?: Record<string, any>;
 
-  openaiAccount?: { baseUrl: string ;key: string }
+  openaiAccount?: { baseUrl: string; key: string };
+  fieldMap?: Record<string, string>;
 };
 
 export type VectorModelItemType = {
