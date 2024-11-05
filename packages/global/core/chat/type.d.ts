@@ -31,6 +31,7 @@ export type ChatSchema = {
   source: `${ChatSourceEnum}`;
   shareId?: string;
   outLinkUid?: string;
+  isDeleted?: number;
 
   variableList?: VariableItemType[];
   welcomeText?: string;
@@ -96,6 +97,7 @@ export type ChatItemSchema = (UserChatItemType | SystemChatItemType | AIChatItem
   teamId: string;
   tmbId: string;
   appId: string;
+  isDeleted?: number;
   time: Date;
 };
 

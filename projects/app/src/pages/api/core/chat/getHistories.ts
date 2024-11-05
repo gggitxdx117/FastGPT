@@ -27,6 +27,16 @@ async function handler(
       return {
         shareId,
         outLinkUid: uid,
+        $or: [
+          {
+            isDeleted: {
+              $lte: 0
+            }
+          },
+          {
+            isDeleted: { $exists: false }
+          }
+        ],
         source: ChatSourceEnum.share,
         updateTime: {
           $gte: new Date(new Date().setDate(new Date().getDate() - 30))
@@ -39,6 +49,16 @@ async function handler(
         teamId,
         appId,
         outLinkUid: uid,
+        $or: [
+          {
+            isDeleted: {
+              $lte: 0
+            }
+          },
+          {
+            isDeleted: { $exists: false }
+          }
+        ],
         source: ChatSourceEnum.team
       };
     }
@@ -47,6 +67,16 @@ async function handler(
       return {
         tmbId,
         appId,
+        $or: [
+          {
+            isDeleted: {
+              $lte: 0
+            }
+          },
+          {
+            isDeleted: { $exists: false }
+          }
+        ],
         source: ChatSourceEnum.online
       };
     }

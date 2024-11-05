@@ -21,19 +21,33 @@ async function handler(req: ApiRequestProps<{}, DelHistoryProps>, res: NextApiRe
     per: WritePermissionVal
   });
 
-  await deleteChatFiles({ chatIdList: [chatId] });
+  // await deleteChatFiles({ chatIdList: [chatId] });
   await mongoSessionRun(async (session) => {
-    await MongoChatItem.deleteMany(
+    // await MongoChatItem.deleteMany(
+    //   {
+    //     appId,
+    //     chatId
+    //   },
+    //   { session }
+    // );
+    await MongoChatItem.findOneAndUpdate(
+      { appId, chatId },
       {
-        appId,
-        chatId
+        $set: { isDeleted: 1 }
       },
       { session }
     );
-    await MongoChat.deleteOne(
+    // await MongoChat.deleteOne(
+    //   {
+    //     appId,
+    //     chatId
+    //   },
+    //   { session }
+    // );
+    await MongoChat.findOneAndUpdate(
+      { appId, chatId },
       {
-        appId,
-        chatId
+        $set: { isDeleted: 1 }
       },
       { session }
     );

@@ -62,6 +62,11 @@ const ChatSchema = new Schema({
     type: String
   },
 
+  isDeleted: {
+    type: Number,
+    default: 0
+  },
+
   variableList: {
     type: Array
   },

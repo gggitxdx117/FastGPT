@@ -63,6 +63,10 @@ const ChatItemSchema = new Schema({
   userBadFeedback: {
     type: String
   },
+  isDeleted: {
+    type: Number,
+    default: 0
+  },
   customFeedbacks: {
     type: [String]
   },

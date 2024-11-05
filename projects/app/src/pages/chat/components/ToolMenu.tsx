@@ -6,7 +6,8 @@ import { useTranslation } from 'next-i18next';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { useRouter } from 'next/router';
 import MyMenu from '@fastgpt/web/components/common/MyMenu';
-import { useShareChatStore } from '@/web/core/chat/storeShareChat';
+import ChatContextProvider, { ChatContext } from '@/web/core/chat/context/chatContext';
+import { useContextSelector } from 'use-context-selector';
 
 const ToolMenu = ({
   history,
@@ -18,7 +19,9 @@ const ToolMenu = ({
   const { t } = useTranslation();
   const { onExportChat } = useChatBox();
   const router = useRouter();
-  const { clearLocalHistory } = useShareChatStore();
+  const {
+    onChangeChatId
+  } = useContextSelector(ChatContext, (v) => v);
 
   return history.length > 0 || 1 ? (
     <MyMenu
@@ -37,13 +40,7 @@ const ToolMenu = ({
               icon: 'core/chat/chatLight',
               label: t('common:core.chat.New Chat'),
               onClick: () => {
-                clearLocalHistory();
-                router.replace({
-                  query: {
-                    ...router.query,
-                    chatId: ''
-                  }
-                });
+                onChangeChatId('')
               }
             }
           ]

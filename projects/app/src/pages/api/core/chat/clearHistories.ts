@@ -52,20 +52,40 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const list = await MongoChat.find(match, 'chatId').lean();
   const idList = list.map((item) => item.chatId);
 
-  await deleteChatFiles({ chatIdList: idList });
+  // await deleteChatFiles({ chatIdList: idList });
 
   await mongoSessionRun(async (session) => {
-    await MongoChatItem.deleteMany(
+    // await MongoChatItem.deleteMany(
+    //   {
+    //     appId: chatAppId,
+    //     chatId: { $in: idList }
+    //   },
+    //   { session }
+    // );
+    await MongoChatItem.updateMany(
       {
         appId: chatAppId,
         chatId: { $in: idList }
       },
+      {
+        $set: { isDeleted: 1 }
+      },
       { session }
     );
-    await MongoChat.deleteMany(
+    // await MongoChat.deleteMany(
+    //   {
+    //     appId: chatAppId,
+    //     chatId: { $in: idList }
+    //   },
+    //   { session }
+    // );
+    await MongoChat.updateMany(
       {
         appId: chatAppId,
         chatId: { $in: idList }
+      },
+      {
+        $set: { isDeleted: 1 }
       },
       { session }
     );
