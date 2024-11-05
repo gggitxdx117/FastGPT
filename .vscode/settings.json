@@ -29,5 +29,8 @@
         "/docSite/content/**/*": "${documentWorkspaceFolder}/docSite/assets/imgs/"
     },
     "markdown.copyFiles.overwriteBehavior": "nameIncrementally",
-    "markdown.copyFiles.transformPath": "const filename = uri.path.split('/').pop(); return `/imgs/${filename}`;"
+    "markdown.copyFiles.transformPath": "const filename = uri.path.split('/').pop(); return `/imgs/${filename}`;",
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }
