@@ -484,72 +484,6 @@ const ChatInput = ({
   );
 
   return (
-<<<<<<< HEAD
-    <Box m={['0 auto', '10px auto']} w={'100%'} maxW={['auto', 'min(800px, 100%)']} px={[0, 5]}>
-      {showSelect && (
-        <Box
-          border={'1px solid rgba(0,0,0,0.12)'}
-          rounded={'md'}
-          pt={2}
-          pb={2}
-          zIndex={10}
-          pl={3}
-          pr={3}
-          bg={'white'}
-          maxHeight={'50vh'}
-          overflowY={'auto'}
-          color={'inherit'}
-        >
-          {presetPromptlist.map(
-            (item, i) =>
-              (!inputValue.slice(1) ||
-                item.prompt
-                  .replace(/\n/g, '')
-                  .search(new RegExp(searchRegExp(inputValue.slice(1)), 'i')) > -1) && (
-                <Box
-                  p={2}
-                  key={i}
-                  _hover={{
-                    backgroundColor: 'primary.50',
-                    color: 'inherit'
-                  }}
-                  onClick={(e) => {
-                    handleSelect(`${item.prompt}`);
-                  }}
-                >
-                  <Box
-                    w={'100%'}
-                    py={0}
-                    fontWeight={'bold'}
-                    height={'22px'}
-                    lineHeight={'22px'}
-                    overflow={'hidden'}
-                    textOverflow={'ellipsis'}
-                    whiteSpace={'nowrap'}
-                    fontSize={'14px'}
-                    onClick={(e) => {}}
-                  >
-                    {item.title}
-                  </Box>
-                  <Box
-                    w={'100%'}
-                    py={0}
-                    height={'22px'}
-                    lineHeight={'22px'}
-                    overflow={'hidden'}
-                    textOverflow={'ellipsis'}
-                    whiteSpace={'nowrap'}
-                    fontSize={'14px'}
-                    onClick={(e) => {}}
-                  >
-                    <HighlightText rawText={item.prompt} matchText={inputValue.substring(1)} />
-                  </Box>
-                </Box>
-              )
-          )}
-        </Box>
-      )}
-=======
     <Box
       m={['0 auto', '10px auto']}
       w={'100%'}
@@ -580,7 +514,6 @@ const ChatInput = ({
         }
       }}
     >
->>>>>>> origin/main
       <Box
         pt={fileList.length > 0 ? '0' : ['14px', '18px']}
         pb={['14px', '18px']}
