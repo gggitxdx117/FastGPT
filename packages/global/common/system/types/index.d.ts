@@ -57,6 +57,7 @@ export type FastGPTFeConfigsType = {
     github?: string;
     google?: string;
     wechat?: string;
+    microsoft?: string;
   };
   limit?: {
     exportDatasetLimitMinutes?: number;

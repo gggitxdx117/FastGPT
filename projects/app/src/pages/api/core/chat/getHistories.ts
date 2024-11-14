@@ -17,16 +17,8 @@ async function handler(
   req: ApiRequestProps<getHistoriesBody, getHistoriesQuery>,
   res: ApiResponseType<any>
 ): Promise<PaginationResponse<getHistoriesResponse>> {
-  const {
-    appId,
-    shareId,
-    outLinkUid,
-    teamId,
-    teamToken,
-    offset,
-    pageSize,
-    source = ChatSourceEnum.online
-  } = req.body as getHistoriesBody;
+  const { appId, shareId, outLinkUid, teamId, teamToken, offset, pageSize, source } =
+    req.body as getHistoriesBody;
 
   const match = await (async () => {
     if (shareId && outLinkUid) {
@@ -85,7 +77,7 @@ async function handler(
             isDeleted: { $exists: false }
           }
         ],
-        source: source
+        source
       };
     }
   })();
