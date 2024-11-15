@@ -37,7 +37,6 @@ async function handler(
             isDeleted: { $exists: false }
           }
         ],
-        source: ChatSourceEnum.share,
         updateTime: {
           $gte: new Date(new Date().setDate(new Date().getDate() - 30))
         }
