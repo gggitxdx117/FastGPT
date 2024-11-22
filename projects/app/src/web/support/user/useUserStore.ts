@@ -93,7 +93,7 @@ export const useUserStore = create<State>()(
         },
         teamMembers: [],
         loadAndGetTeamMembers: async (init = false) => {
-          if (!useSystemStore.getState()?.feConfigs?.isPlus) return [];
+          // if (!useSystemStore.getState()?.feConfigs?.isPlus) return [];
 
           const randomRefresh = Math.random() > 0.7;
           if (!randomRefresh && !init && get().teamMembers?.length)

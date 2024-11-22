@@ -12,6 +12,13 @@ export type CollaboratorItemType = {
   groupId: string;
 }>;
 
+export type UpdateAppPermissionProps = {
+  appId: string;
+  members?: string[];
+  groups?: string[];
+  permission: PermissionValueType;
+};
+
 export type UpdateClbPermissionProps = {
   members?: string[];
   groups?: string[];

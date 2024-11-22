@@ -36,7 +36,7 @@ const TeamMenu = () => {
         transform={'none !important'}
         rightIcon={<MyIcon w={'1rem'} name={'common/select'} />}
         onClick={() => {
-          if (feConfigs.isPlus) {
+          if (feConfigs.isPlus || 1) {
             onOpen();
           } else {
             toast({

@@ -103,7 +103,7 @@ const CollaboratorContextProvider = ({
     loading: isFetchingCollaborator
   } = useRequest2(
     async () => {
-      if (feConfigs.isPlus) {
+      if (feConfigs.isPlus || 1) {
         return onGetCollaboratorList();
       }
       return [];

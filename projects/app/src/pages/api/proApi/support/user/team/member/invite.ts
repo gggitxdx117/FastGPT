@@ -12,9 +12,9 @@ import { TeamMemberStatusEnum } from '@fastgpt/global/support/user/team/constant
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await connectToDatabase();
-    const { usernames, teamId, permission } = req.body as InviteMemberProps;
+    const { usernames, teamId } = req.body as InviteMemberProps;
 
-    if (!usernames || !teamId || !permission) {
+    if (!usernames || !teamId) {
       throw new Error('缺少参数');
     }
 
@@ -75,15 +75,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             userId: userInfo.id,
             username: userInfo.username
           });
-          // 需要加入权限
-          if (permission) {
-            await MongoResourcePermission.create({
-              teamId,
-              tmbId: teamMember._id.toString(),
-              permission,
-              resourceType: PerResourceTypeEnum.team
-            });
-          }
         } else {
           inValid.push({
             userId: userInfo.id,
