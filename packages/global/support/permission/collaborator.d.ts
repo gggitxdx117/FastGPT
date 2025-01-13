@@ -19,6 +19,13 @@ export type UpdateAppPermissionProps = {
   permission: PermissionValueType;
 };
 
+export type UpdateDatasetPermissionProps = {
+  datasetId: string;
+  members?: string[];
+  groups?: string[];
+  permission: PermissionValueType;
+};
+
 export type UpdateClbPermissionProps = {
   members?: string[];
   groups?: string[];
