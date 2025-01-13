@@ -27,7 +27,6 @@ import { computedMaxToken, llmCompletionsBodyFormat } from '../../../../ai/utils
 import { toolValueTypeList } from '@fastgpt/global/core/workflow/constants';
 import { WorkflowInteractiveResponseType } from '@fastgpt/global/core/workflow/template/system/interactive/type';
 import { ChatItemValueTypeEnum } from '@fastgpt/global/core/chat/constants';
-import { i18nT } from '../../../../../../web/i18n/utils';
 
 type FunctionRunResponseType = {
   toolRunResponse: DispatchFlowResponse;
@@ -44,10 +43,10 @@ export const runToolWithFunctionCall = async (
     requestOrigin,
     runtimeNodes,
     runtimeEdges,
-    user,
+    externalProvider,
     stream,
     workflowStreamResponse,
-    params: { temperature = 0, maxToken = 4000, aiChatVision }
+    params: { temperature, maxToken, aiChatVision }
   } = workflowProps;
 
   // Interactive
@@ -110,7 +109,8 @@ export const runToolWithFunctionCall = async (
 
       return {
         dispatchFlowResponse: [toolRunResponse],
-        toolNodeTokens: 0,
+        toolNodeInputTokens: 0,
+        toolNodeOutputTokens: 0,
         completeMessages: requestMessages,
         assistantResponses: toolRunResponse.assistantResponses,
         runTimes: toolRunResponse.runTimes,
@@ -127,7 +127,8 @@ export const runToolWithFunctionCall = async (
       },
       {
         dispatchFlowResponse: [toolRunResponse],
-        toolNodeTokens: 0,
+        toolNodeInputTokens: 0,
+        toolNodeOutputTokens: 0,
         assistantResponses: toolRunResponse.assistantResponses,
         runTimes: toolRunResponse.runTimes
       }
@@ -216,9 +217,13 @@ export const runToolWithFunctionCall = async (
 
   // console.log(JSON.stringify(requestMessages, null, 2));
   /* Run llm */
-  const { response: aiResponse, isStreamResponse } = await createChatCompletion({
+  const {
+    response: aiResponse,
+    isStreamResponse,
+    getEmptyResponseTip
+  } = await createChatCompletion({
     body: requestBody,
-    userKey: toolModel.openaiAccount ? toolModel.openaiAccount : user.openaiAccount,
+    userKey: externalProvider.openaiAccount,
     options: {
       headers: {
         Accept: 'application/json, text/plain, */*'
@@ -256,6 +261,9 @@ export const runToolWithFunctionCall = async (
       };
     }
   })();
+  if (!answer && functionCalls.length === 0) {
+    return Promise.reject(getEmptyResponseTip());
+  }
 
   // Run the selected tool.
   const toolsRunResponse = (
@@ -334,7 +342,9 @@ export const runToolWithFunctionCall = async (
       assistantToolMsgParams
     ] as ChatCompletionMessageParam[];
     // Only toolCall tokens are counted here, Tool response tokens count towards the next reply
-    const tokens = await countGptMessagesTokens(concatToolMessages, undefined, functions);
+    // const tokens = await countGptMessagesTokens(concatToolMessages, undefined, functions);
+    const inputTokens = await countGptMessagesTokens(requestMessages, undefined, functions);
+    const outputTokens = await countGptMessagesTokens([assistantToolMsgParams]);
     /* 
       ...
       user
@@ -369,7 +379,12 @@ export const runToolWithFunctionCall = async (
     const runTimes =
       (response?.runTimes || 0) +
       flatToolsResponseData.reduce((sum, item) => sum + item.runTimes, 0);
-    const toolNodeTokens = response?.toolNodeTokens ? response.toolNodeTokens + tokens : tokens;
+    const toolNodeInputTokens = response?.toolNodeInputTokens
+      ? response.toolNodeInputTokens + inputTokens
+      : inputTokens;
+    const toolNodeOutputTokens = response?.toolNodeOutputTokens
+      ? response.toolNodeOutputTokens + outputTokens
+      : outputTokens;
 
     // Check stop signal
     const hasStopSignal = flatToolsResponseData.some(
@@ -402,7 +417,8 @@ export const runToolWithFunctionCall = async (
 
       return {
         dispatchFlowResponse,
-        toolNodeTokens,
+        toolNodeInputTokens,
+        toolNodeOutputTokens,
         completeMessages,
         assistantResponses: toolNodeAssistants,
         runTimes,
@@ -417,7 +433,8 @@ export const runToolWithFunctionCall = async (
       },
       {
         dispatchFlowResponse,
-        toolNodeTokens,
+        toolNodeInputTokens,
+        toolNodeOutputTokens,
         assistantResponses: toolNodeAssistants,
         runTimes
       }
@@ -429,7 +446,8 @@ export const runToolWithFunctionCall = async (
       content: answer
     };
     const completeMessages = filterMessages.concat(gptAssistantResponse);
-    const tokens = await countGptMessagesTokens(completeMessages, undefined, functions);
+    const inputTokens = await countGptMessagesTokens(requestMessages, undefined, functions);
+    const outputTokens = await countGptMessagesTokens([gptAssistantResponse]);
     // console.log(tokens, 'response token');
 
     // concat tool assistant
@@ -437,7 +455,12 @@ export const runToolWithFunctionCall = async (
 
     return {
       dispatchFlowResponse: response?.dispatchFlowResponse || [],
-      toolNodeTokens: response?.toolNodeTokens ? response.toolNodeTokens + tokens : tokens,
+      toolNodeInputTokens: response?.toolNodeInputTokens
+        ? response.toolNodeInputTokens + inputTokens
+        : inputTokens,
+      toolNodeOutputTokens: response?.toolNodeOutputTokens
+        ? response.toolNodeOutputTokens + outputTokens
+        : outputTokens,
       completeMessages,
       assistantResponses: [...assistantResponses, ...toolNodeAssistant.value],
       runTimes: (response?.runTimes || 0) + 1
@@ -547,10 +570,6 @@ async function streamResponse({
         });
       }
     }
-  }
-
-  if (!textAnswer && functionCalls.length === 0) {
-    return Promise.reject(i18nT('chat:LLM_model_response_empty'));
   }
 
   return { answer: textAnswer, functionCalls };

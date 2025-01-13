@@ -3,7 +3,7 @@ import { NodeProps } from 'reactflow';
 import { Box } from '@chakra-ui/react';
 import { FlowNodeItemType } from '@fastgpt/global/core/workflow/type/node.d';
 
-import QGSwitch from '@/components/core/app/QGSwitch';
+import QGConfig from '@/components/core/app/QGConfig';
 import TTSSelect from '@/components/core/app/TTSSelect';
 import WhisperConfig from '@/components/core/app/WhisperConfig';
 import InputGuideConfig from '@/components/core/app/InputGuideConfig';
@@ -13,7 +13,12 @@ import NodeCard from './render/NodeCard';
 import ScheduledTriggerConfig from '@/components/core/app/ScheduledTriggerConfig';
 import { useContextSelector } from 'use-context-selector';
 import { WorkflowContext } from '../../context';
-import { AppChatConfigType, AppDetailType, VariableItemType } from '@fastgpt/global/core/app/type';
+import {
+  AppChatConfigType,
+  AppDetailType,
+  AppQGConfigType,
+  VariableItemType
+} from '@fastgpt/global/core/app/type';
 import { useMemoizedFn } from 'ahooks';
 import VariableEdit from '@/components/core/app/VariableEdit';
 import { AppContext } from '@/pages/app/detail/components/context';
@@ -22,6 +27,7 @@ import FileSelect from '@/components/core/app/FileSelect';
 import { FlowNodeTypeEnum } from '@fastgpt/global/core/workflow/node/constant';
 import { userFilesInput } from '@fastgpt/global/core/workflow/template/system/workflowStart';
 import Container from '../components/Container';
+import AutoExecConfig from '@/components/core/app/AutoExecConfig';
 
 type ComponentProps = {
   chatConfig: AppChatConfigType;
@@ -81,6 +87,9 @@ const NodeUserGuide = ({ data, selected }: NodeProps<FlowNodeItemType>) => {
               <ScheduledTrigger {...componentsProps} />
             </Box>
             <Box mt={3} pt={3} borderTop={'base'} borderColor={'myGray.200'}>
+              <AutoExecute {...componentsProps} />
+            </Box>
+            <Box mt={3} pt={3} borderTop={'base'} borderColor={'myGray.200'}>
               <QuestionInputGuide {...componentsProps} />
             </Box>
           </Container>
@@ -128,17 +137,33 @@ function ChatStartVariable({ chatConfig: { variables = [] }, setAppDetail }: Com
   return <VariableEdit variables={variables} onChange={(e) => updateVariables(e)} />;
 }
 
-function QuestionGuide({ chatConfig: { questionGuide = false }, setAppDetail }: ComponentProps) {
+function AutoExecute({ chatConfig: { autoExecute }, setAppDetail }: ComponentProps) {
   return (
-    <QGSwitch
-      isChecked={questionGuide}
-      onChange={(e) => {
-        const value = e.target.checked;
+    <AutoExecConfig
+      value={autoExecute}
+      onChange={(e) =>
         setAppDetail((state) => ({
           ...state,
           chatConfig: {
             ...state.chatConfig,
-            questionGuide: value
+            autoExecute: e
+          }
+        }))
+      }
+    />
+  );
+}
+
+function QuestionGuide({ chatConfig: { questionGuide }, setAppDetail }: ComponentProps) {
+  return (
+    <QGConfig
+      value={questionGuide}
+      onChange={(e) => {
+        setAppDetail((state) => ({
+          ...state,
+          chatConfig: {
+            ...state.chatConfig,
+            questionGuide: e
           }
         }));
       }}

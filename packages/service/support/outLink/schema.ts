@@ -48,7 +48,8 @@ const OutLinkSchema = new Schema({
     default: false
   },
   showNodeStatus: {
-    type: Boolean
+    type: Boolean,
+    default: true
   },
   showRawSource: {
     type: Boolean
@@ -80,6 +81,13 @@ const OutLinkSchema = new Schema({
   defaultResponse: {
     type: String
   }
+});
+
+OutLinkSchema.virtual('associatedApp', {
+  ref: AppCollectionName,
+  localField: 'appId',
+  foreignField: '_id',
+  justOne: true
 });
 
 try {

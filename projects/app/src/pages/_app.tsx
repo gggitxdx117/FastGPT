@@ -14,6 +14,7 @@ import NextHead from '@/components/common/NextHead';
 import { ReactElement, useEffect } from 'react';
 import { NextPage } from 'next';
 import { getWebReqUrl } from '@fastgpt/web/common/system/utils';
+import SystemStoreContextProvider from '@fastgpt/web/context/useSystem';
 
 type NextPageWithLayout = NextPage & {
   setLayout?: (page: ReactElement) => JSX.Element;
@@ -60,11 +61,13 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
       ></script>
 
       <QueryClientContext>
-        <I18nContextProvider>
-          <ChakraUIContext>
-            <Layout>{setLayout(<Component {...pageProps} />)}</Layout>
-          </ChakraUIContext>
-        </I18nContextProvider>
+        <SystemStoreContextProvider device={pageProps.deviceSize}>
+          <I18nContextProvider>
+            <ChakraUIContext>
+              <Layout>{setLayout(<Component {...pageProps} />)}</Layout>
+            </ChakraUIContext>
+          </I18nContextProvider>
+        </SystemStoreContextProvider>
       </QueryClientContext>
     </>
   );

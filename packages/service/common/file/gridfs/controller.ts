@@ -32,18 +32,20 @@ export function getGridBucket(bucket: `${BucketNameEnum}`) {
 export async function uploadFile({
   bucketName,
   teamId,
-  tmbId,
+  uid,
   path,
   filename,
   contentType,
+  encoding,
   metadata = {}
 }: {
   bucketName: `${BucketNameEnum}`;
   teamId: string;
-  tmbId: string;
+  uid: string; // tmbId / outLinkUId
   path: string;
   filename: string;
   contentType?: string;
+  encoding: string;
   metadata?: Record<string, any>;
 }) {
   if (!path) return Promise.reject(`filePath is empty`);
@@ -52,11 +54,11 @@ export async function uploadFile({
   const stats = await fsp.stat(path);
   if (!stats.isFile()) return Promise.reject(`${path} is not a file`);
 
-  const { stream: readStream, encoding } = await stream2Encoding(fs.createReadStream(path));
+  const readStream = fs.createReadStream(path);
 
   // Add default metadata
   metadata.teamId = teamId;
-  metadata.tmbId = tmbId;
+  metadata.uid = uid;
   metadata.encoding = encoding;
 
   // create a gridfs bucket

@@ -6,11 +6,12 @@ import { OAuthEnum } from '@fastgpt/global/support/user/constant';
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import { customAlphabet } from 'nanoid';
 import { useRouter } from 'next/router';
-import { Dispatch, useRef } from 'react';
+import { Dispatch, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'next-i18next';
 import I18nLngSelector from '@/components/Select/I18nLngSelector';
 import { useSystem } from '@fastgpt/web/hooks/useSystem';
 import MyImage from '@fastgpt/web/components/common/Image/MyImage';
+import { useToast } from '@fastgpt/web/hooks/useToast';
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz1234567890', 8);
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
 const FormLayout = ({ children, setPageType, pageType }: Props) => {
   const { t } = useTranslation();
   const router = useRouter();
+
   const { setLoginStore, feConfigs } = useSystemStore();
   const { lastRoute = '/app/list' } = router.query as { lastRoute: string };
   const state = useRef(nanoid());
@@ -36,6 +38,16 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
             provider: OAuthEnum.wechat,
             icon: 'common/wechatFill',
             pageType: LoginPageTypeEnum.wechat
+          }
+        ]
+      : []),
+    ...(feConfigs?.oauth?.dingtalk
+      ? [
+          {
+            label: t('user:login.Dingtalk'),
+            provider: OAuthEnum.dingtalk,
+            icon: 'common/dingtalkFill',
+            redirectUrl: `https://login.dingtalk.com/oauth2/auth?client_id=${feConfigs?.oauth?.dingtalk}&redirect_uri=${redirectUri}&state=${state.current}&response_type=code&scope=openid&prompt=consent`
           }
         ]
       : []),
@@ -62,10 +74,11 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
     ...(feConfigs?.oauth?.microsoft
       ? [
           {
-            label: t('common:support.user.login.Microsoft'),
+            label:
+              feConfigs?.oauth?.microsoft?.customButton || t('common:support.user.login.Microsoft'),
             provider: OAuthEnum.microsoft,
             icon: 'common/microsoft',
-            redirectUrl: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${feConfigs?.oauth?.microsoft}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2Fuser.read&state=${state.current}`
+            redirectUrl: `https://login.microsoftonline.com/${feConfigs?.oauth?.microsoft?.tenantId || 'common'}/oauth2/v2.0/authorize?client_id=${feConfigs?.oauth?.microsoft?.clientId}&response_type=code&redirect_uri=${redirectUri}&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2Fuser.read&state=${state.current}`
           }
         ]
       : []),
@@ -81,8 +94,28 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
       : [])
   ];
 
-  const show_oauth =
-    !sessionStorage.getItem('bd_vid') && !!(feConfigs?.sso || oAuthList.length > 0);
+  const show_oauth = useMemo(
+    () => !sessionStorage.getItem('bd_vid') && !!(feConfigs?.sso?.url || oAuthList.length > 0),
+    [feConfigs?.sso?.url, oAuthList.length]
+  );
+
+  const onClickSso = useCallback(() => {
+    if (!feConfigs?.sso?.url) return;
+    setLoginStore({
+      provider: OAuthEnum.sso,
+      lastRoute,
+      state: state.current
+    });
+    const url = `${feConfigs.sso.url}/login/oauth/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state.current}`;
+
+    window.open(url, '_self');
+  }, [feConfigs?.sso?.url, lastRoute, redirectUri, setLoginStore]);
+
+  useEffect(() => {
+    if (feConfigs?.sso?.autoLogin) {
+      onClickSso();
+    }
+  }, [feConfigs?.sso?.autoLogin]);
 
   return (
     <Flex flexDirection={'column'} h={'100%'}>
@@ -142,7 +175,7 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
               </Box>
             ))}
 
-            {feConfigs?.sso && (
+            {feConfigs?.sso?.url && (
               <Box mt={4} color={'primary.700'} cursor={'pointer'} textAlign={'center'}>
                 <Button
                   variant={'whitePrimary'}
@@ -150,9 +183,7 @@ const FormLayout = ({ children, setPageType, pageType }: Props) => {
                   h={'40px'}
                   borderRadius={'sm'}
                   leftIcon={<MyImage alt="" src={feConfigs.sso.icon as any} w="20px" />}
-                  onClick={() => {
-                    feConfigs.sso?.url && router.replace(feConfigs.sso?.url, '_self');
-                  }}
+                  onClick={onClickSso}
                 >
                   {feConfigs.sso.title}
                 </Button>

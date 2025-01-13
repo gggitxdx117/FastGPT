@@ -10,17 +10,17 @@ import { MongoResourcePermission } from './schema';
 import { ClientSession } from 'mongoose';
 import {
   PermissionValueType,
-  ResourcePermissionType,
-  ResourcePerWithGroup,
-  ResourcePerWithTmbWithUser
+  ResourcePermissionType
 } from '@fastgpt/global/support/permission/type';
 import { bucketNameMap } from '@fastgpt/global/common/file/constants';
 import { addMinutes } from 'date-fns';
 import { getGroupsByTmbId } from './memberGroup/controllers';
 import { Permission } from '@fastgpt/global/support/permission/controller';
 import { ParentIdType } from '@fastgpt/global/common/parentFolder/type';
-import { RequireOnlyOne } from '@fastgpt/global/common/type/utils';
 import { CommonErrEnum } from '@fastgpt/global/common/error/code/common';
+import { MemberGroupSchemaType } from '@fastgpt/global/support/permission/memberGroup/type';
+import { TeamMemberSchema } from '@fastgpt/global/support/user/team/type';
+import { UserModelSchema } from '@fastgpt/global/support/user/type';
 
 /** get resource permission for a team member
  * If there is no permission for the team member, it will return undefined
@@ -160,32 +160,33 @@ export const getClbsAndGroupsWithInfo = async ({
   teamId: string;
 }) =>
   Promise.all([
-    (await MongoResourcePermission.find({
+    MongoResourcePermission.find({
       teamId,
       resourceId,
       resourceType,
       tmbId: {
         $exists: true
       }
-    }).populate({
-      path: 'tmbId',
-      select: 'name userId',
-      populate: {
-        path: 'userId',
-        select: 'avatar'
-      }
-    })) as ResourcePerWithTmbWithUser[],
-    (await MongoResourcePermission.find({
+    })
+      .populate<{ tmb: TeamMemberSchema & { user: UserModelSchema } }>({
+        path: 'tmb',
+        select: 'name userId',
+        populate: {
+          path: 'user',
+          select: 'avatar'
+        }
+      })
+      .lean(),
+    MongoResourcePermission.find({
       teamId,
       resourceId,
       resourceType,
       groupId: {
         $exists: true
       }
-    }).populate({
-      path: 'groupId',
-      select: 'name avatar'
-    })) as ResourcePerWithGroup[]
+    })
+      .populate<{ group: MemberGroupSchemaType }>('group', 'name avatar')
+      .lean()
   ]);
 
 export const delResourcePermissionById = (id: string) => {
@@ -413,7 +414,8 @@ export const createFileToken = (data: FileTokenQuery) => {
     return Promise.reject('System unset FILE_TOKEN_KEY');
   }
 
-  const expireMinutes = bucketNameMap[data.bucketName].previewExpireMinutes;
+  const expireMinutes =
+    data.customExpireMinutes ?? bucketNameMap[data.bucketName].previewExpireMinutes;
   const expiredTime = Math.floor(addMinutes(new Date(), expireMinutes).getTime() / 1000);
 
   const key = (process.env.FILE_TOKEN_KEY as string) ?? 'filetoken';
@@ -435,14 +437,14 @@ export const authFileToken = (token?: string) =>
     const key = (process.env.FILE_TOKEN_KEY as string) ?? 'filetoken';
 
     jwt.verify(token, key, function (err, decoded: any) {
-      if (err || !decoded.bucketName || !decoded?.teamId || !decoded?.tmbId || !decoded?.fileId) {
+      if (err || !decoded.bucketName || !decoded?.teamId || !decoded?.fileId) {
         reject(ERROR_ENUM.unAuthFile);
         return;
       }
       resolve({
         bucketName: decoded.bucketName,
         teamId: decoded.teamId,
-        tmbId: decoded.tmbId,
+        uid: decoded.uid,
         fileId: decoded.fileId
       });
     });

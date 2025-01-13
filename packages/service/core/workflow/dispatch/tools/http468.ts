@@ -18,13 +18,13 @@ import {
   textAdaptGptResponse,
   replaceEditorVariable
 } from '@fastgpt/global/core/workflow/runtime/utils';
-import { getSystemPluginCb } from '../../../../../plugins/register';
 import { ContentTypes } from '@fastgpt/global/core/workflow/constants';
 import { uploadFileFromBase64Img } from '../../../../common/file/gridfs/controller';
 import { ReadFileBaseUrl } from '@fastgpt/global/common/file/constants';
 import { createFileToken } from '../../../../support/permission/controller';
 import { JSONPath } from 'jsonpath-plus';
 import type { SystemPluginSpecialResponse } from '../../../../../plugins/type';
+import json5 from 'json5';
 
 type PropsArrType = {
   key: string;
@@ -104,19 +104,18 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
     [NodeInputKeyEnum.addInputParam]: concatVariables,
     ...concatVariables
   };
-  httpReqUrl = replaceVariable(httpReqUrl, allVariables);
-
   const replaceStringVariables = (text: string) => {
     return replaceVariable(
       replaceEditorVariable({
         text,
         nodes: runtimeNodes,
-        variables: allVariables,
-        runningNode: node
+        variables: allVariables
       }),
       allVariables
     );
   };
+
+  httpReqUrl = replaceStringVariables(httpReqUrl);
 
   // parse header
   const headers = await (() => {
@@ -177,16 +176,18 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
       }
       if (!httpJsonBody) return {};
       if (httpContentType === ContentTypes.json) {
-        httpJsonBody = replaceVariable(httpJsonBody, allVariables);
+        httpJsonBody = replaceStringVariables(httpJsonBody);
+
+        const replaceJsonBody = httpJsonBody.replace(/(".*?")\s*:\s*undefined\b/g, '$1: null');
+
         // Json body, parse and return
-        const jsonParse = JSON.parse(httpJsonBody);
+        const jsonParse = json5.parse(replaceJsonBody);
         const removeSignJson = removeUndefinedSign(jsonParse);
         return removeSignJson;
       }
       httpJsonBody = replaceStringVariables(httpJsonBody);
       return httpJsonBody.replaceAll(UNDEFINED_SIGN, 'null');
     } catch (error) {
-      console.log(error);
       return Promise.reject(`Invalid JSON body: ${httpJsonBody}`);
     }
   })();
@@ -197,7 +198,7 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
       return Object.fromEntries(requestBody);
     } else if (typeof requestBody === 'string') {
       try {
-        return JSON.parse(requestBody);
+        return json5.parse(requestBody);
       } catch {
         return { content: requestBody };
       }
@@ -209,7 +210,7 @@ export const dispatchHttp468Request = async (props: HttpRequestProps): Promise<H
 
   try {
     const { formatResponse, rawResponse } = await (async () => {
-      const systemPluginCb = await getSystemPluginCb();
+      const systemPluginCb = global.systemPluginCb;
       if (systemPluginCb[httpReqUrl]) {
         const pluginResult = await replaceSystemPluginResponse({
           response: await systemPluginCb[httpReqUrl](requestBody),
@@ -395,7 +396,7 @@ async function replaceSystemPluginResponse({
         response[key] = `${ReadFileBaseUrl}/${filename}?token=${await createFileToken({
           bucketName: 'chat',
           teamId,
-          tmbId,
+          uid: tmbId,
           fileId
         })}`;
       } catch (error) {}

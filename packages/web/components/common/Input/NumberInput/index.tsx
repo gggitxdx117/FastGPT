@@ -26,8 +26,9 @@ const MyNumberInput = (props: Props) => {
       {...restProps}
       onChange={(e) => {
         if (!onChange) return;
-        if (isNaN(Number(e))) {
-          onChange();
+        if (e === '') {
+          // @ts-ignore
+          onChange('');
         } else {
           onChange(Number(e));
         }
@@ -40,7 +41,8 @@ const MyNumberInput = (props: Props) => {
           ? register(name, {
               required: props.isRequired,
               min: props.min,
-              max: props.max
+              max: props.max,
+              valueAsNumber: true
             })
           : {})}
       />
@@ -56,4 +58,4 @@ const MyNumberInput = (props: Props) => {
   );
 };
 
-export default MyNumberInput;
+export default React.memo(MyNumberInput);

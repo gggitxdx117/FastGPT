@@ -1,15 +1,6 @@
-import type {
-  AIChatItemType,
-  ChatItemType,
-  UserChatItemType
-} from '@fastgpt/global/core/chat/type.d';
-import axios from 'axios';
+import type { AIChatItemType, UserChatItemType } from '@fastgpt/global/core/chat/type.d';
 import { MongoApp } from '../app/schema';
-import {
-  ChatItemValueTypeEnum,
-  ChatRoleEnum,
-  ChatSourceEnum
-} from '@fastgpt/global/core/chat/constants';
+import { ChatItemValueTypeEnum, ChatRoleEnum } from '@fastgpt/global/core/chat/constants';
 import { MongoChatItem } from './chatItemSchema';
 import { MongoChat } from './chatSchema';
 import { addLog } from '../../common/system/log';
@@ -19,6 +10,7 @@ import { getAppChatConfig, getGuideModule } from '@fastgpt/global/core/workflow/
 import { AppChatConfigType } from '@fastgpt/global/core/app/type';
 import { mergeChatResponseData } from '@fastgpt/global/core/chat/utils';
 import { pushChatLog } from './pushChatLog';
+import { FlowNodeTypeEnum } from '@fastgpt/global/core/workflow/node/constant';
 
 type Props = {
   chatId: string;
@@ -71,6 +63,9 @@ export async function saveChat({
       systemConfigNode: getGuideModule(nodes),
       isPublicFetch: false
     });
+    const pluginInputs = nodes?.find(
+      (node) => node.flowNodeType === FlowNodeTypeEnum.pluginInput
+    )?.inputs;
 
     await mongoSessionRun(async (session) => {
       const [{ _id: chatItemIdHuman }, { _id: chatItemIdAi }] = await MongoChatItem.insertMany(
@@ -98,6 +93,7 @@ export async function saveChat({
             variableList,
             welcomeText,
             variables: variables || {},
+            pluginInputs,
             title: newTitle,
             source,
             shareId,
@@ -133,21 +129,15 @@ export async function saveChat({
 export const updateInteractiveChat = async ({
   chatId,
   appId,
-  teamId,
-  tmbId,
   userInteractiveVal,
   aiResponse,
-  newVariables,
-  newTitle
+  newVariables
 }: {
   chatId: string;
   appId: string;
-  teamId: string;
-  tmbId: string;
   userInteractiveVal: string;
   aiResponse: AIChatItemType & { dataId?: string };
   newVariables?: Record<string, any>;
-  newTitle: string;
 }) => {
   if (!chatId) return;
 
@@ -232,7 +222,6 @@ export const updateInteractiveChat = async ({
       {
         $set: {
           variables: newVariables,
-          title: newTitle,
           updateTime: new Date()
         }
       },

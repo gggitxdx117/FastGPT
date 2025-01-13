@@ -8,12 +8,9 @@ import { WorkerNameEnum, runWorker } from '@fastgpt/service/worker/utils';
 const staticPluginList = [
   'getTime',
   'fetchUrl',
-  'Doc2X',
-  'Doc2X/URLPDF2text',
-  'Doc2X/URLImg2text',
-  `Doc2X/FilePDF2text`,
-  `Doc2X/FileImg2text`,
   'feishu',
+  'DingTalkWebhook',
+  'WeWorkWebhook',
   'google',
   'bing'
 ];
@@ -28,7 +25,10 @@ const packagePluginList = [
   'drawing',
   'drawing/baseChart',
   'wiki',
-  'databaseConnection'
+  'databaseConnection',
+  'Doc2X',
+  'Doc2X/PDF2text',
+  'searchXNG'
 ];
 
 export const list = [...staticPluginList, ...packagePluginList];
@@ -49,12 +49,15 @@ export const getCommunityPlugins = () => {
       id: `${PluginSourceEnum.community}-${name}`,
       isFolder,
       parentId,
-      isActive: true
+      isActive: true,
+      isOfficial: true
     };
   });
 };
 
 export const getSystemPluginTemplates = () => {
+  if (!global.systemPlugins) return [];
+
   const oldPlugins = global.communityPlugins ?? [];
   return [...oldPlugins, ...cloneDeep(global.systemPlugins)];
 };
@@ -95,8 +98,4 @@ export const getCommunityCb = async () => {
     },
     {}
   );
-};
-
-export const getSystemPluginCb = async () => {
-  return global.systemPluginCb;
 };

@@ -83,15 +83,26 @@ const DatasetSchema = new Schema({
       }
     }
   },
-  externalReadUrl: {
-    type: String
-  },
   inheritPermission: {
     type: Boolean,
     default: true
   },
+  apiServer: {
+    type: Object
+  },
+  feishuServer: {
+    type: Object
+  },
+  yuqueServer: {
+    type: Object
+  },
+
+  autoSync: Boolean,
 
   // abandoned
+  externalReadUrl: {
+    type: String
+  },
   defaultPermission: Number
 });
 

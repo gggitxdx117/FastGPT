@@ -39,10 +39,12 @@ export async function generateVector(): Promise<any> {
       const data = await MongoDatasetTraining.findOneAndUpdate(
         {
           mode: TrainingModeEnum.chunk,
-          lockTime: { $lte: addMinutes(new Date(), -1) }
+          retryCount: { $gte: 0 },
+          lockTime: { $lte: addMinutes(new Date(), -6) }
         },
         {
-          lockTime: new Date()
+          lockTime: new Date(),
+          $inc: { retryCount: -1 }
         }
       ).select({
         _id: 1,
@@ -109,7 +111,7 @@ export async function generateVector(): Promise<any> {
     pushGenerateVectorUsage({
       teamId: data.teamId,
       tmbId: data.tmbId,
-      tokens,
+      inputTokens: tokens,
       model: data.model,
       billId: data.billId
     });

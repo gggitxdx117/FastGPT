@@ -23,6 +23,7 @@ const MermaidCodeBlock = dynamic(() => import('./img/MermaidCodeBlock'), { ssr: 
 const MdImage = dynamic(() => import('./img/Image'), { ssr: false });
 const EChartsCodeBlock = dynamic(() => import('./img/EChartsCodeBlock'), { ssr: false });
 const IframeCodeBlock = dynamic(() => import('./codeBlock/Iframe'), { ssr: false });
+const IframeHtmlCodeBlock = dynamic(() => import('./codeBlock/iframe-html'), { ssr: false });
 
 const ChatGuide = dynamic(() => import('./chat/Guide'), { ssr: false });
 const QuestionGuide = dynamic(() => import('./chat/QuestionGuide'), { ssr: false });
@@ -37,17 +38,22 @@ function getQueryParamFromUrl(url: string, param: string) {
   return urlParams.get(param);
 }
 
-const Markdown = ({
-  source = '',
-  showAnimation = false,
-  isDisabled = false,
-  forbidZhFormat = false
-}: {
+type Props = {
   source?: string;
   showAnimation?: boolean;
   isDisabled?: boolean;
   forbidZhFormat?: boolean;
-}) => {
+};
+const Markdown = (props: Props) => {
+  const source = props.source || '';
+
+  if (source.length < 200000) {
+    return <MarkdownRender {...props} />;
+  }
+
+  return <Box whiteSpace={'pre-wrap'}>{source}</Box>;
+};
+const MarkdownRender = ({ source = '', showAnimation, isDisabled, forbidZhFormat }: Props) => {
   const components = useMemo<any>(
     () => ({
       img: Image,
@@ -179,6 +185,13 @@ function Code(e: any) {
     }
     if (codeType === CodeClassNameEnum.iframe) {
       return <IframeCodeBlock code={strChildren} />;
+    }
+    if (codeType && codeType.toLowerCase() === CodeClassNameEnum.html) {
+      return (
+        <IframeHtmlCodeBlock className={className} codeBlock={codeBlock} match={match}>
+          {children}
+        </IframeHtmlCodeBlock>
+      );
     }
 
     return (

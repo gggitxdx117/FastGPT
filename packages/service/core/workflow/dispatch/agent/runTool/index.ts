@@ -46,7 +46,7 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
     requestOrigin,
     chatConfig,
     runningAppInfo: { teamId },
-    user,
+    externalProvider,
     params: {
       model,
       systemPrompt,
@@ -152,7 +152,7 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
   })();
 
   // censor model and system key
-  if (toolModel.censor && !user.openaiAccount?.key) {
+  if (toolModel.censor && !externalProvider.openaiAccount?.key) {
     await postTextCensor({
       text: `${systemPrompt}
           ${userChatInput}
@@ -164,6 +164,8 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
     toolWorkflowInteractiveResponse,
     dispatchFlowResponse, // tool flow response
     toolNodeTokens,
+    toolNodeInputTokens,
+    toolNodeOutputTokens,
     completeMessages = [], // The actual message sent to AI(just save text)
     assistantResponses = [], // FastGPT system store assistant.value response
     runTimes
@@ -224,10 +226,11 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
 
   const { totalPoints, modelName } = formatModelChars2Points({
     model,
-    tokens: toolNodeTokens,
+    inputTokens: toolNodeInputTokens,
+    outputTokens: toolNodeOutputTokens,
     modelType: ModelTypeEnum.llm
   });
-  const toolAIUsage = user.openaiAccount?.key ? 0 : totalPoints;
+  const toolAIUsage = externalProvider.openaiAccount?.key ? 0 : totalPoints;
 
   // flat child tool response
   const childToolResponse = dispatchFlowResponse.map((item) => item.flowResponses).flat();
@@ -254,6 +257,8 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
       // 展示的积分消耗
       totalPoints: totalPointsUsage,
       toolCallTokens: toolNodeTokens,
+      toolCallInputTokens: toolNodeInputTokens,
+      toolCallOutputTokens: toolNodeOutputTokens,
       childTotalPoints: flatUsages.reduce((sum, item) => sum + item.totalPoints, 0),
       model: modelName,
       query: userChatInput,
@@ -269,9 +274,10 @@ export const dispatchRunTools = async (props: DispatchToolModuleProps): Promise<
       // 工具调用本身的积分消耗
       {
         moduleName: name,
-        totalPoints: toolAIUsage,
         model: modelName,
-        tokens: toolNodeTokens
+        totalPoints: toolAIUsage,
+        inputTokens: toolNodeInputTokens,
+        outputTokens: toolNodeOutputTokens
       },
       // 工具的消耗
       ...flatUsages

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Box, Flex, Button, InputGroup, InputLeftElement, Input } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { serviceSideProps } from '@/web/common/utils/i18n';
+import { serviceSideProps } from '@fastgpt/web/common/system/nextjs';
 import ParentPaths from '@/components/common/folder/Path';
 import List from './component/List';
 import { DatasetsContext } from './context';
@@ -66,7 +66,7 @@ const Dataset = () => {
     (e: CreateDatasetType) => {
       if (
         !feConfigs?.isPlus &&
-        (e === DatasetTypeEnum.websiteDataset || e === DatasetTypeEnum.externalFile)
+        [DatasetTypeEnum.websiteDataset, DatasetTypeEnum.feishu, DatasetTypeEnum.yuque].includes(e)
       ) {
         return toast({
           status: 'warning',
@@ -107,7 +107,7 @@ const Dataset = () => {
       overflowY={'auto'}
       overflowX={'hidden'}
     >
-      <Flex pt={[4, 6]} pl={3} pr={[3, 10]}>
+      <Flex pt={[4, 6]} pl={3} pr={folderDetail ? [3, 6] : [3, 8]}>
         <Flex flexGrow={1} flexDirection="column">
           <Flex alignItems={'center'} justifyContent={'space-between'}>
             <ParentPaths
@@ -136,14 +136,13 @@ const Dataset = () => {
 
             {isPc && RenderSearchInput}
 
-            {userInfo?.team?.permission.hasWritePer && (
+            {(folderDetail
+              ? folderDetail.permission.hasWritePer
+              : userInfo?.team?.permission.hasWritePer) && (
               <Box pl={[0, 4]}>
                 <MyMenu
+                  size="md"
                   offset={[0, 10]}
-                  width={120}
-                  iconSize="2rem"
-                  iconRadius="6px"
-                  placement="bottom-end"
                   Button={
                     <Button variant={'primary'} px="0">
                       <Flex alignItems={'center'} px={5}>
@@ -162,16 +161,28 @@ const Dataset = () => {
                           onClick: () => onSelectDatasetType(DatasetTypeEnum.dataset)
                         },
                         {
+                          icon: 'core/dataset/externalDatasetColor',
+                          label: t('dataset:api_file'),
+                          description: t('dataset:external_file_dataset_desc'),
+                          onClick: () => onSelectDatasetType(DatasetTypeEnum.apiDataset)
+                        },
+                        {
                           icon: 'core/dataset/websiteDatasetColor',
                           label: t('dataset:website_dataset'),
                           description: t('dataset:website_dataset_desc'),
                           onClick: () => onSelectDatasetType(DatasetTypeEnum.websiteDataset)
                         },
                         {
-                          icon: 'core/dataset/externalDatasetColor',
-                          label: t('dataset:external_file'),
-                          description: t('dataset:external_file_dataset_desc'),
-                          onClick: () => onSelectDatasetType(DatasetTypeEnum.externalFile)
+                          icon: 'core/dataset/feishuDatasetColor',
+                          label: t('dataset:feishu_dataset'),
+                          description: t('dataset:feishu_dataset_desc'),
+                          onClick: () => onSelectDatasetType(DatasetTypeEnum.feishu)
+                        },
+                        {
+                          icon: 'core/dataset/yuqueDatasetColor',
+                          label: t('dataset:yuque_dataset'),
+                          description: t('dataset:yuque_dataset_desc'),
+                          onClick: () => onSelectDatasetType(DatasetTypeEnum.yuque)
                         }
                       ]
                     },

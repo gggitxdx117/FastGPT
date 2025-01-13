@@ -1,5 +1,5 @@
 import { ChatCompletionRequestMessageRoleEnum } from '../../ai/constants';
-import { NodeInputKeyEnum, NodeOutputKeyEnum } from '../constants';
+import { NodeInputKeyEnum, NodeOutputKeyEnum, WorkflowIOValueTypeEnum } from '../constants';
 import { FlowNodeTypeEnum } from '../node/constant';
 import { StoreNodeItemType } from '../type/node';
 import { StoreEdgeItemType } from '../type/edge';
@@ -9,6 +9,7 @@ import { isValidReferenceValueFormat } from '../utils';
 import { FlowNodeOutputItemType, ReferenceValueType } from '../type/io';
 import { ChatItemType, NodeOutputItemType } from '../../../core/chat/type';
 import { ChatItemValueTypeEnum, ChatRoleEnum } from '../../../core/chat/constants';
+import { replaceVariable, valToStr } from '../../../common/string/tools';
 
 export const getMaxHistoryLimitFromNodes = (nodes: StoreNodeItemType[]): number => {
   let limit = 10;
@@ -251,6 +252,7 @@ export const getReferenceVariableValue = ({
       return variables[outputId];
     }
 
+    // 避免 value 刚好就是二个元素的字符串数组
     const node = nodes.find((node) => node.nodeId === sourceNodeId);
     if (!node) {
       return value;
@@ -279,72 +281,74 @@ export const getReferenceVariableValue = ({
   return value;
 };
 
+export const formatVariableValByType = (val: any, valueType?: WorkflowIOValueTypeEnum) => {
+  if (!valueType) return val;
+  // Value type check, If valueType invalid, return undefined
+  if (valueType.startsWith('array') && !Array.isArray(val)) return undefined;
+  if (valueType === WorkflowIOValueTypeEnum.boolean) return Boolean(val);
+  if (valueType === WorkflowIOValueTypeEnum.number) return Number(val);
+  if (valueType === WorkflowIOValueTypeEnum.string) {
+    if (val === undefined) return 'undefined';
+    if (val === null) return 'null';
+    return typeof val === 'object' ? JSON.stringify(val) : String(val);
+  }
+  if (
+    [
+      WorkflowIOValueTypeEnum.object,
+      WorkflowIOValueTypeEnum.chatHistory,
+      WorkflowIOValueTypeEnum.datasetQuote,
+      WorkflowIOValueTypeEnum.selectApp,
+      WorkflowIOValueTypeEnum.selectDataset
+    ].includes(valueType) &&
+    typeof val !== 'object'
+  )
+    return undefined;
+
+  return val;
+};
 // replace {{$xx.xx$}} variables for text
 export function replaceEditorVariable({
   text,
   nodes,
-  variables,
-  runningNode
+  variables
 }: {
   text: any;
   nodes: RuntimeNodeItemType[];
   variables: Record<string, any>; // global variables
-  runningNode: RuntimeNodeItemType;
 }) {
   if (typeof text !== 'string') return text;
 
-  const globalVariables = Object.keys(variables).map((key) => {
-    return {
-      nodeId: VARIABLE_NODE_ID,
-      id: key,
-      value: variables[key]
-    };
-  });
+  text = replaceVariable(text, variables);
 
-  // Upstream node outputs
-  const nodeVariables = nodes
-    .map((node) => {
-      return node.outputs.map((output) => {
-        return {
-          nodeId: node.nodeId,
-          id: output.id,
-          value: output.value
-        };
-      });
-    })
-    .flat();
+  const variablePattern = /\{\{\$([^.]+)\.([^$]+)\$\}\}/g;
+  const matches = [...text.matchAll(variablePattern)];
+  if (matches.length === 0) return text;
 
-  // Get runningNode inputs(Will be replaced with reference)
-  const customInputs = runningNode.inputs.flatMap((item) => {
-    return [
-      {
-        id: item.key,
-        value: getReferenceVariableValue({
-          value: item.value,
-          nodes,
-          variables
-        }),
-        nodeId: runningNode.nodeId
+  matches.forEach((match) => {
+    const nodeId = match[1];
+    const id = match[2];
+
+    const variableVal = (() => {
+      if (nodeId === VARIABLE_NODE_ID) {
+        return variables[id];
       }
-    ];
-  });
+      // Find upstream node input/output
+      const node = nodes.find((node) => node.nodeId === nodeId);
+      if (!node) return;
 
-  const allVariables = [...globalVariables, ...nodeVariables, ...customInputs];
+      const output = node.outputs.find((output) => output.id === id);
+      if (output) return formatVariableValByType(output.value, output.valueType);
 
-  // Replace {{$xxx.xxx$}} to value
-  for (const key in allVariables) {
-    const variable = allVariables[key];
-    const val = variable.value;
-    const formatVal = (() => {
-      if (val === undefined) return '';
-      if (val === null) return 'null';
-
-      return typeof val === 'object' ? JSON.stringify(val) : String(val);
+      const input = node.inputs.find((input) => input.key === id);
+      if (input) return getReferenceVariableValue({ value: input.value, nodes, variables });
     })();
 
-    const regex = new RegExp(`\\{\\{\\$(${variable.nodeId}\\.${variable.id})\\$\\}\\}`, 'g');
-    text = text.replace(regex, formatVal);
-  }
+    const formatVal = valToStr(variableVal);
+
+    const regex = new RegExp(`\\{\\{\\$(${nodeId}\\.${id})\\$\\}\\}`, 'g');
+    text = text.replace(regex, () => formatVal);
+  });
+
   return text || '';
 }
 

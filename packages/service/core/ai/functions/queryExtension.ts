@@ -1,10 +1,11 @@
 import { replaceVariable } from '@fastgpt/global/common/string/tools';
 import { createChatCompletion } from '../config';
 import { ChatItemType } from '@fastgpt/global/core/chat/type';
-import { countGptMessagesTokens } from '../../../common/string/tiktoken/index';
+import { countGptMessagesTokens, countPromptTokens } from '../../../common/string/tiktoken/index';
 import { chatValue2RuntimePrompt } from '@fastgpt/global/core/chat/adapt';
 import { getLLMModel } from '../model';
 import { llmCompletionsBodyFormat } from '../utils';
+import { addLog } from '../../../common/system/log';
 
 /* 
     query extension - 问题扩展
@@ -120,7 +121,8 @@ export const queryExtension = async ({
   rawQuery: string;
   extensionQueries: string[];
   model: string;
-  tokens: number;
+  inputTokens: number;
+  outputTokens: number;
 }> => {
   const systemFewShot = chatBg
     ? `Q: 对话背景。
@@ -165,7 +167,8 @@ A: ${chatBg}
       rawQuery: query,
       extensionQueries: [],
       model,
-      tokens: 0
+      inputTokens: 0,
+      outputTokens: 0
     };
   }
 
@@ -180,15 +183,17 @@ A: ${chatBg}
       rawQuery: query,
       extensionQueries: Array.isArray(queries) ? queries : [],
       model,
-      tokens: await countGptMessagesTokens(messages)
+      inputTokens: await countGptMessagesTokens(messages),
+      outputTokens: await countPromptTokens(answer)
     };
   } catch (error) {
-    console.log(error);
+    addLog.error(`Query extension error`, error);
     return {
       rawQuery: query,
       extensionQueries: [],
       model,
-      tokens: 0
+      inputTokens: 0,
+      outputTokens: 0
     };
   }
 };

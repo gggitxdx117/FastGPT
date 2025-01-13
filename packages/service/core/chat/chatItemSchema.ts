@@ -46,6 +46,10 @@ const ChatItemSchema = new Schema({
     type: Date,
     default: () => new Date()
   },
+  hideInUI: {
+    type: Boolean,
+    default: false
+  },
   obj: {
     // chat role
     type: String,
@@ -98,6 +102,12 @@ try {
   ChatItemSchema.index({ time: -1, obj: 1 }, { background: true });
   // timer, clear history
   ChatItemSchema.index({ teamId: 1, time: -1 }, { background: true });
+
+  // Admin charts
+  ChatItemSchema.index(
+    { obj: 1, time: -1 },
+    { background: true, partialFilterExpression: { obj: 'Human' } }
+  );
 } catch (error) {
   console.log(error);
 }

@@ -2,7 +2,7 @@ import type {
   LLMModelItemType,
   VectorModelItemType,
   AudioSpeechModels,
-  WhisperModelType,
+  STTModelType,
   ReRankModelItemType
 } from '@fastgpt/global/core/ai/model.d';
 
@@ -10,11 +10,12 @@ import type { FastGPTFeConfigsType, PresetPromptType } from '@fastgpt/global/com
 import { SubPlanType } from '@fastgpt/global/support/wallet/sub/type';
 
 export type InitDateResponse = {
+  bufferId?: string;
   llmModels: LLMModelItemType[];
   vectorModels: VectorModelItemType[];
   audioSpeechModels: AudioSpeechModels[];
   reRankModels: ReRankModelItemType[];
-  whisperModel: WhisperModelType;
+  whisperModel: STTModelType;
   feConfigs: FastGPTFeConfigsType;
   presetPromptlist: PresetPromptType[];
   subPlans?: SubPlanType;

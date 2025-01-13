@@ -10,6 +10,7 @@ import {
 } from './constants';
 import { DatasetPermission } from '../../support/permission/dataset/controller';
 import { Permission } from '../../support/permission/controller';
+import { APIFileServer, FeishuServer, YuqueServer } from './apiDataset';
 
 export type DatasetSchemaType = {
   _id: string;
@@ -30,10 +31,15 @@ export type DatasetSchemaType = {
     url: string;
     selector: string;
   };
-  externalReadUrl?: string;
   inheritPermission: boolean;
+  apiServer?: APIFileServer;
+  feishuServer?: FeishuServer;
+  yuqueServer?: YuqueServer;
+
+  autoSync?: boolean;
 
   // abandon
+  externalReadUrl?: string;
   defaultPermission?: number;
 };
 
@@ -60,10 +66,13 @@ export type DatasetCollectionSchemaType = {
   fileId?: string; // local file id
   rawLink?: string; // link url
   externalFileId?: string; //external file id
+  apiFileId?: string; // api file id
+  externalFileUrl?: string; // external import url
+
+  nextSyncTime?: Date;
 
   rawTextLength?: number;
   hashRawText?: string;
-  externalFileUrl?: string; // external import url
   metadata?: {
     webPageSelector?: string;
     relatedImgId?: string; // The id of the associated image collections
@@ -124,11 +133,8 @@ export type DatasetTrainingSchemaType = {
   indexes: Omit<DatasetDataIndexItemType, 'dataId'>[];
 };
 
-export type CollectionWithDatasetType = Omit<DatasetCollectionSchemaType, 'datasetId'> & {
-  datasetId: DatasetSchemaType;
-};
-export type DatasetDataWithCollectionType = Omit<DatasetDataSchemaType, 'collectionId'> & {
-  collectionId: DatasetCollectionSchemaType;
+export type CollectionWithDatasetType = DatasetCollectionSchemaType & {
+  dataset: DatasetSchemaType;
 };
 
 /* ================= dataset ===================== */
@@ -204,7 +210,8 @@ export type DatasetFileSchema = {
   contentType: string;
   metadata: {
     teamId: string;
-    tmbId: string;
+    tmbId?: string;
+    uid: string;
     encoding?: string;
   };
 };

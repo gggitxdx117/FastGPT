@@ -7,7 +7,7 @@ import { getErrText } from '@fastgpt/global/common/error/utils';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import { useRouter } from 'next/router';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
-import { useRequest } from '@fastgpt/web/hooks/useRequest';
+import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 import Avatar from '@fastgpt/web/components/common/Avatar';
 import MyTooltip from '@fastgpt/web/components/common/MyTooltip';
 import MyModal from '@fastgpt/web/components/common/MyModal';
@@ -20,11 +20,17 @@ import AIModelSelector from '@/components/Select/AIModelSelector';
 import { useSystem } from '@fastgpt/web/hooks/useSystem';
 import QuestionTip from '@fastgpt/web/components/common/MyTooltip/QuestionTip';
 import ComplianceTip from '@/components/common/ComplianceTip/index';
+import MyIcon from '@fastgpt/web/components/common/Icon';
+import { getDocPath } from '@/web/common/system/doc';
+import { datasetTypeCourseMap } from '@/web/core/dataset/constants';
+import ApiDatasetForm from '../../component/ApiDatasetForm';
 
 export type CreateDatasetType =
   | DatasetTypeEnum.dataset
-  | DatasetTypeEnum.externalFile
-  | DatasetTypeEnum.websiteDataset;
+  | DatasetTypeEnum.apiDataset
+  | DatasetTypeEnum.websiteDataset
+  | DatasetTypeEnum.feishu
+  | DatasetTypeEnum.yuque;
 
 const CreateModal = ({
   onClose,
@@ -41,35 +47,45 @@ const CreateModal = ({
   const { vectorModelList, datasetModelList } = useSystemStore();
   const { isPc } = useSystem();
 
-  const databaseNameMap = useMemo(() => {
+  const datasetTypeMap = useMemo(() => {
     return {
-      [DatasetTypeEnum.dataset]: t('dataset:common_dataset'),
-      [DatasetTypeEnum.externalFile]: t('dataset:external_file'),
-      [DatasetTypeEnum.websiteDataset]: t('dataset:website_dataset')
+      [DatasetTypeEnum.dataset]: {
+        name: t('dataset:common_dataset'),
+        icon: 'core/dataset/commonDatasetColor'
+      },
+      [DatasetTypeEnum.apiDataset]: {
+        name: t('dataset:api_file'),
+        icon: 'core/dataset/externalDatasetColor'
+      },
+      [DatasetTypeEnum.websiteDataset]: {
+        name: t('dataset:website_dataset'),
+        icon: 'core/dataset/websiteDatasetColor'
+      },
+      [DatasetTypeEnum.feishu]: {
+        name: t('dataset:feishu_dataset'),
+        icon: 'core/dataset/feishuDatasetColor'
+      },
+      [DatasetTypeEnum.yuque]: {
+        name: t('dataset:yuque_dataset'),
+        icon: 'core/dataset/yuqueDatasetColor'
+      }
     };
   }, [t]);
 
-  const iconMap = useMemo(() => {
-    return {
-      [DatasetTypeEnum.dataset]: 'core/dataset/commonDatasetColor',
-      [DatasetTypeEnum.externalFile]: 'core/dataset/externalDatasetColor',
-      [DatasetTypeEnum.websiteDataset]: 'core/dataset/websiteDatasetColor'
-    };
-  }, []);
-
   const filterNotHiddenVectorModelList = vectorModelList.filter((item) => !item.hidden);
 
-  const { register, setValue, handleSubmit, watch } = useForm<CreateDatasetParams>({
+  const form = useForm<CreateDatasetParams>({
     defaultValues: {
       parentId,
       type: type || DatasetTypeEnum.dataset,
-      avatar: iconMap[type] || 'core/dataset/commonDatasetColor',
+      avatar: datasetTypeMap[type].icon,
       name: '',
       intro: '',
       vectorModel: filterNotHiddenVectorModelList[0].model,
       agentModel: datasetModelList[0].model
     }
   });
+  const { register, setValue, handleSubmit, watch } = form;
   const avatar = watch('avatar');
   const vectorModel = watch('vectorModel');
   const agentModel = watch('agentModel');
@@ -90,7 +106,7 @@ const CreateModal = ({
           maxW: 300,
           maxH: 300
         });
-        setValue('avatar', src);
+        setValue('avatar' as const, src);
       } catch (err: any) {
         toast({
           title: getErrText(err, t('common:common.avatar.Select Failed')),
@@ -102,24 +118,29 @@ const CreateModal = ({
   );
 
   /* create a new kb and router to it */
-  const { mutate: onclickCreate, isLoading: creating } = useRequest({
-    mutationFn: async (data: CreateDatasetParams) => {
-      const id = await postCreateDataset(data);
-      return id;
-    },
-    successToast: t('common:common.Create Success'),
-    errorToast: t('common:common.Create Failed'),
-    onSuccess(id) {
-      router.push(`/dataset/detail?datasetId=${id}`);
+  const { run: onclickCreate, loading: creating } = useRequest2(
+    async (data: CreateDatasetParams) => await postCreateDataset(data),
+    {
+      successToast: t('common:common.Create Success'),
+      errorToast: t('common:common.Create Failed'),
+      onSuccess(id) {
+        router.push(`/dataset/detail?datasetId=${id}`);
+      }
     }
-  });
+  );
 
   return (
     <MyModal
       title={
         <Flex alignItems={'center'} ml={-3}>
-          <Avatar w={'20px'} h={'20px'} borderRadius={'xs'} src={iconMap[type]} pr={'10px'} />
-          {t('common:core.dataset.Create dataset', { name: databaseNameMap[type] })}
+          <Avatar
+            w={'20px'}
+            h={'20px'}
+            borderRadius={'xs'}
+            src={datasetTypeMap[type].icon}
+            pr={'10px'}
+          />
+          {t('common:core.dataset.Create dataset', { name: datasetTypeMap[type].name })}
         </Flex>
       }
       isOpen
@@ -129,9 +150,24 @@ const CreateModal = ({
     >
       <ModalBody py={6} px={9}>
         <Box>
-          <Box color={'myGray.900'} fontWeight={500} fontSize={'sm'}>
-            {t('common:common.Set Name')}
-          </Box>
+          <Flex justify={'space-between'}>
+            <Box color={'myGray.900'} fontWeight={500} fontSize={'sm'}>
+              {t('common:common.Set Name')}
+            </Box>
+            {datasetTypeCourseMap[type] && (
+              <Flex
+                as={'span'}
+                alignItems={'center'}
+                color={'primary.600'}
+                fontSize={'sm'}
+                cursor={'pointer'}
+                onClick={() => window.open(getDocPath(datasetTypeCourseMap[type]), '_blank')}
+              >
+                <MyIcon name={'book'} w={4} mr={0.5} />
+                {t('common:Instructions')}
+              </Flex>
+            )}
+          </Flex>
           <Flex mt={'12px'} alignItems={'center'}>
             <MyTooltip label={t('common:common.avatar.Select Avatar')}>
               <Avatar
@@ -185,7 +221,7 @@ const CreateModal = ({
                   value: item.model
                 }))}
                 onchange={(e) => {
-                  setValue('vectorModel', e);
+                  setValue('vectorModel' as const, e);
                 }}
               />
             </Box>
@@ -218,12 +254,14 @@ const CreateModal = ({
                   value: item.model
                 }))}
                 onchange={(e) => {
-                  setValue('agentModel', e);
+                  setValue('agentModel' as const, e);
                 }}
               />
             </Box>
           </Flex>
         )}
+        {/* @ts-ignore */}
+        <ApiDatasetForm type={type} form={form} />
       </ModalBody>
 
       <ModalFooter px={9}>
