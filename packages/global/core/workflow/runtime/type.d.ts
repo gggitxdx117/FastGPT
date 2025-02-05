@@ -41,6 +41,10 @@ export type ChatDispatchProps = {
     teamId: string;
     tmbId: string; // App tmbId
   };
+  runningUserInfo: {
+    teamId: string;
+    tmbId: string;
+  };
   uid: string; // Who run this workflow
 
   chatId?: string;
@@ -216,6 +220,7 @@ export type AIChatNodeProps = {
   [NodeInputKeyEnum.aiChatMaxToken]?: number;
   [NodeInputKeyEnum.aiChatIsResponseText]: boolean;
   [NodeInputKeyEnum.aiChatVision]?: boolean;
+  [NodeInputKeyEnum.aiChatReasoning]?: boolean;
 
   [NodeInputKeyEnum.aiChatQuoteRole]?: AiChatQuoteRoleType;
   [NodeInputKeyEnum.aiChatQuoteTemplate]?: string;

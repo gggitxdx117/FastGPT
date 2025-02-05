@@ -5,6 +5,8 @@ import type { FlowNodeInputItemType } from '../workflow/type/io.d';
 import { getAppChatConfig } from '../workflow/utils';
 import { StoreNodeItemType } from '../workflow/type/node';
 import { DatasetSearchModeEnum } from '../dataset/constants';
+import { WorkflowTemplateBasicType } from '../workflow/type';
+import { AppTypeEnum } from './constants';
 
 export const getDefaultAppForm = (): AppSimpleEditFormType => {
   return {
@@ -14,7 +16,8 @@ export const getDefaultAppForm = (): AppSimpleEditFormType => {
       temperature: 0,
       isResponseAnswerText: true,
       maxHistories: 6,
-      maxToken: 4000
+      maxToken: 4000,
+      aiChatReasoning: true
     },
     dataset: {
       datasets: [],
@@ -126,4 +129,21 @@ export const appWorkflow2Form = ({
   });
 
   return defaultAppForm;
+};
+
+export const getAppType = (config?: WorkflowTemplateBasicType | AppSimpleEditFormType) => {
+  if (!config) return '';
+
+  if ('aiSettings' in config) {
+    return AppTypeEnum.simple;
+  }
+
+  if (!('nodes' in config)) return '';
+  if (config.nodes.some((node) => node.flowNodeType === 'workflowStart')) {
+    return AppTypeEnum.workflow;
+  }
+  if (config.nodes.some((node) => node.flowNodeType === 'pluginInput')) {
+    return AppTypeEnum.plugin;
+  }
+  return '';
 };

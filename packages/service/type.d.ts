@@ -4,10 +4,10 @@ import {
   PresetPromptType
 } from '@fastgpt/global/common/system/types';
 import {
-  AudioSpeechModelType,
+  TTSModelType,
   ReRankModelItemType,
   STTModelType,
-  VectorModelItemType,
+  EmbeddingModelItemType,
   LLMModelItemType
 } from '@fastgpt/global/core/ai/model.d';
 import { SubPlanType } from '@fastgpt/global/support/wallet/sub/type';
@@ -16,18 +16,12 @@ import { Worker } from 'worker_threads';
 
 declare global {
   var systemInitBufferId: string | undefined;
+
   var systemVersion: string;
   var feConfigs: FastGPTFeConfigsType;
   var systemEnv: SystemEnvType;
   var subPlans: SubPlanType | undefined;
-
-  var llmModels: LLMModelItemType[];
   var presetPromptlist: PresetPromptType[];
-  var llmModelPriceType: 'IO' | 'Tokens';
-  var vectorModels: VectorModelItemType[];
-  var audioSpeechModels: AudioSpeechModelType[];
-  var whisperModel: STTModelType;
-  var reRankModels: ReRankModelItemType[];
 
   var workerPoll: Record<WorkerNameEnum, WorkerPool>;
 }

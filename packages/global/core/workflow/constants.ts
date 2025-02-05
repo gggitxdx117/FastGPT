@@ -141,6 +141,7 @@ export enum NodeInputKeyEnum {
   aiChatDatasetQuote = 'quoteQA',
   aiChatVision = 'aiChatVision',
   stringQuoteText = 'stringQuoteText',
+  aiChatReasoning = 'aiChatReasoning',
 
   // dataset
   datasetSelectList = 'datasets',
@@ -152,6 +153,7 @@ export enum NodeInputKeyEnum {
   datasetSearchExtensionModel = 'datasetSearchExtensionModel',
   datasetSearchExtensionBg = 'datasetSearchExtensionBg',
   collectionFilterMatch = 'collectionFilterMatch',
+  authTmbId = 'authTmbId',
 
   // concat dataset
   datasetQuoteList = 'system_datasetQuoteList',
@@ -219,7 +221,8 @@ export enum NodeOutputKeyEnum {
   // common
   userChatInput = 'userChatInput',
   history = 'history',
-  answerText = 'answerText', // module answer. the value will be show and save to history
+  answerText = 'answerText', // node answer. the value will be show and save to history
+  reasoningText = 'reasoningText', // node reasoning. the value will be show but not save to history
   success = 'success',
   failed = 'failed',
   error = 'error',

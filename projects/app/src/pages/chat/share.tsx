@@ -9,8 +9,8 @@ import ChatBox from '@/components/core/chat/ChatContainer/ChatBox';
 import type { StartChatFnProps } from '@/components/core/chat/ChatContainer/type';
 
 import PageContainer from '@/components/PageContainer';
-import ChatHeader from './components/ChatHeader';
-import ChatHistorySlider from './components/ChatHistorySlider';
+import ChatHeader from '@/pageComponents/chat/ChatHeader';
+import ChatHistorySlider from '@/pageComponents/chat/ChatHistorySlider';
 import { serviceSideProps } from '@fastgpt/web/common/system/nextjs';
 import { useTranslation } from 'next-i18next';
 import { getInitOutLinkChatInfo } from '@/web/core/chat/api';
@@ -38,7 +38,7 @@ import { ChatSourceEnum } from '@fastgpt/global/core/chat/constants';
 import { useI18nLng } from '@fastgpt/web/hooks/useI18n';
 import { AppSchema } from '@fastgpt/global/core/app/type';
 
-const CustomPluginRunBox = dynamic(() => import('./components/CustomPluginRunBox'));
+const CustomPluginRunBox = dynamic(() => import('@/pageComponents/chat/CustomPluginRunBox'));
 
 type Props = {
   appId: string;
@@ -55,7 +55,6 @@ type Props = {
 const OutLink = (props: Props) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { showRawSource, showNodeStatus } = props;
   const {
     shareId = '',
     showHistory = '1',
@@ -287,8 +286,6 @@ const OutLink = (props: Props) => {
                   feedbackType={'user'}
                   onStartChat={startChat}
                   chatType="share"
-                  showRawSource={showRawSource}
-                  showNodeStatus={showNodeStatus}
                 />
               )}
             </Box>
@@ -340,7 +337,12 @@ const Render = (props: Props) => {
 
   return source === ChatSourceEnum.share ? (
     <ChatContextProvider params={chatHistoryProviderParams}>
-      <ChatItemContextProvider>
+      <ChatItemContextProvider
+        showRouteToAppDetail={false}
+        showRouteToDatasetDetail={false}
+        isShowReadRawSource={props.showRawSource}
+        showNodeStatus={props.showNodeStatus}
+      >
         <ChatRecordContextProvider params={chatRecordProviderParams}>
           <OutLink {...props} />
         </ChatRecordContextProvider>
