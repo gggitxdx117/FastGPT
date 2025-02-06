@@ -10,21 +10,21 @@ import { UpdateClbPermissionProps } from '@fastgpt/global/support/permission/col
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await connectToDatabase();
-    const { permission, tmbIds } = req.body as UpdateClbPermissionProps;
+    const { permission, members } = req.body as UpdateClbPermissionProps;
 
-    if (!tmbIds || !permission) {
+    if (!members || !permission) {
       throw new Error('缺少参数');
     }
 
     // 查询所在的团队
     /* temp: get all tmb and per */
     const [tmbList, rpList] = await Promise.all([
-      MongoTeamMember.find({ _id: { $in: tmbIds } })
+      MongoTeamMember.find({ _id: { $in: members } })
         .sort({ defaultTeam: -1, _id: 1 })
         .lean(),
       MongoResourcePermission.find({
         resourceType: PerResourceTypeEnum.team,
-        tmbIds
+        members
       }).lean()
     ]);
     // 依次写入

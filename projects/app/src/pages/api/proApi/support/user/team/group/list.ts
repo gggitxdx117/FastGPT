@@ -51,7 +51,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
     })
     .filter((tmb) => tmb.permission.value);
 
-  return [];
+  return [{"name": "DEFAULT_GROUP", "members": filterTmbList}];
 }
 
 export default NextAPI(handler);

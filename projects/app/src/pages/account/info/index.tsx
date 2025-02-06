@@ -280,7 +280,7 @@ const MyInfo = ({ onOpenContact }: { onOpenContact: () => void }) => {
             )}
           </Flex>
         )}
-        {feConfigs.isPlus && (
+        {(1 || feConfigs?.isPlus) && (
           <Flex mt={6} alignItems={'center'}>
             <Box {...labelStyles}>{t('account_info:user_team_team_name')}:&nbsp;</Box>
             <Flex flex={'1 0 0'} w={0} align={'center'}>
@@ -288,7 +288,7 @@ const MyInfo = ({ onOpenContact }: { onOpenContact: () => void }) => {
             </Flex>
           </Flex>
         )}
-        {feConfigs?.isPlus && (userInfo?.team?.balance ?? 0) > 0 && (
+        {(1 || feConfigs?.isPlus) && (userInfo?.team?.balance ?? 0) > 0 && (
           <Box mt={6} whiteSpace={'nowrap'}>
             <Flex alignItems={'center'}>
               <Box {...labelStyles}>{t('account_info:team_balance')}:&nbsp;</Box>

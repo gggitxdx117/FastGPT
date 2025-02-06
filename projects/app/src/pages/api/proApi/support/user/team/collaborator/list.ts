@@ -51,7 +51,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
     })
     .filter((tmb) => tmb.permission.value);
 
-  return {"list": filterTmbList, "total": filterTmbList.length};
+  return filterTmbList;
 }
 
 export default NextAPI(handler);
