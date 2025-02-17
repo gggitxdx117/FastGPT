@@ -29,7 +29,6 @@ export type ExternalProviderWorkflowVarType = {
 /* fastgpt main */
 export type FastGPTConfigFileType = {
   feConfigs: FastGPTFeConfigsType;
-  presetPromptlist: PresetPromptType[];
   systemEnv: SystemEnvType;
   subPlans?: SubPlanType;
 

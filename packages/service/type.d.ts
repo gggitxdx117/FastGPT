@@ -21,7 +21,6 @@ declare global {
   var feConfigs: FastGPTFeConfigsType;
   var systemEnv: SystemEnvType;
   var subPlans: SubPlanType | undefined;
-  var presetPromptlist: PresetPromptType[];
 
   var workerPoll: Record<WorkerNameEnum, WorkerPool>;
 }

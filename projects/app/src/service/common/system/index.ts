@@ -71,13 +71,11 @@ const defaultFeConfigs: FastGPTFeConfigsType = {
 
 export async function initSystemConfig() {
   // load config
-  const [{ config: dbConfig }, fileConfig, promptConfig] = await Promise.all([
+  const [{ config: dbConfig }, fileConfig] = await Promise.all([
     getFastGPTConfigFromDB(),
-    readConfigData('config.json'),
-    readConfigData('prompt.json')
+    readConfigData('config.json')
   ]);
   const fileRes = json5.parse(fileConfig) as FastGPTConfigFileType;
-  const promptRes = JSON.parse(promptConfig) as FastGPTConfigFileType;
 
   // get config from database
   const config: FastGPTConfigFileType = {
@@ -91,7 +89,6 @@ export async function initSystemConfig() {
       ...fileRes.systemEnv,
       ...(dbConfig.systemEnv || {})
     },
-    presetPromptlist: promptRes.presetPromptlist || [],
     subPlans: dbConfig.subPlans || fileRes.subPlans
   };
 

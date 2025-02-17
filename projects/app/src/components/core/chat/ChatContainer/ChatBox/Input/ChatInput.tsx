@@ -45,7 +45,6 @@ const ChatInput = ({
   chatForm: UseFormReturn<ChatBoxInputFormType>;
 }) => {
   const { t } = useTranslation();
-  const { presetPromptlist } = useSystemStore();
   const { toast } = useToast();
   const { isPc } = useSystem();
 

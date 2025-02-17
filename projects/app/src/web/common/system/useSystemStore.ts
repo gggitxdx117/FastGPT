@@ -48,7 +48,6 @@ type State = {
 
   initDataBufferId?: string;
   feConfigs: FastGPTFeConfigsType;
-  presetPromptlist: PresetPromptType[];
   subPlans?: SubPlanType;
   systemVersion: string;
   defaultModels: SystemDefaultModelType;
@@ -105,7 +104,7 @@ export const useSystemStore = create<State>()(
           return null;
         },
 
-        gitStar: 15600,
+        gitStar: 20000,
         async loadGitStar() {
           if (!get().feConfigs?.show_git) return;
           try {
@@ -134,14 +133,12 @@ export const useSystemStore = create<State>()(
         embeddingModelList: [],
         ttsModelList: [],
         reRankModelList: [],
-        presetPromptlist: [],
         sttModelList: [],
         initStaticData(res) {
           set((state) => {
             state.initDataBufferId = res.bufferId;
 
             state.feConfigs = res.feConfigs ?? state.feConfigs;
-            state.presetPromptlist = res.presetPromptlist || [];
             state.subPlans = res.subPlans ?? state.subPlans;
             state.systemVersion = res.systemVersion ?? state.systemVersion;
 
