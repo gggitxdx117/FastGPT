@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const per = rpList.find((item) => String(item.tmbId) === String(tmb._id));
       if (!per) {
         // 添加权限值
-        MongoResourcePermission.create({
+        await MongoResourcePermission.create({
           teamId: tmb.teamId,
           tmbId: tmb._id,
           permission,

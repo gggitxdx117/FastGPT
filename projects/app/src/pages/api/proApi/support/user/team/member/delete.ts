@@ -5,10 +5,25 @@ import { MongoResourcePermission } from '@fastgpt/service/support/permission/sch
 import { PerResourceTypeEnum } from '@fastgpt/global/support/permission/constant';
 import { connectToDatabase } from '@/service/mongo';
 import type { DelMemberProps } from '@fastgpt/global/support/user/team/controller.d';
+import { authUserPer } from '@fastgpt/service/support/permission/user/auth';
+import {
+  ManagePermissionVal
+} from '@fastgpt/global/support/permission/constant';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await connectToDatabase();
+    // 凭证校验
+    const { teamId } = await authUserPer({
+      req,
+      authToken: true,
+      authRoot: true,
+      per: ManagePermissionVal
+    });
+    if (!teamId) {
+      throw new Error('权限不允许');
+    }
+
     const { tmbId } = req.query as DelMemberProps;
 
     if (!tmbId) {
