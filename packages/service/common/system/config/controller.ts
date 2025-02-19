@@ -4,7 +4,7 @@ import { FastGPTConfigFileType } from '@fastgpt/global/common/system/types';
 import { FastGPTProUrl } from '../constants';
 
 export const getFastGPTConfigFromDB = async () => {
-  if (!FastGPTProUrl) {
+  if (0 && !FastGPTProUrl) {
     return {
       config: {} as FastGPTConfigFileType
     };
