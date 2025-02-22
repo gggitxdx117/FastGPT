@@ -36,6 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error('用户已注册');
     }
 
+    // 检测用户邮箱是否为@yishouapp.com
+    if (!username.includes('@yishouapp.com')) {
+      throw new Error('邮箱格式不正确');
+    }
+
     const user = await MongoUser.create({
       username,
       password,
