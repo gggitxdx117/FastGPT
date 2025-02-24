@@ -152,7 +152,6 @@ const ChatInput = ({
     return pattr;
   };
   /* whisper init */
-  const { sttModelList } = useSystemStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const {
     isSpeaking,
@@ -338,7 +337,7 @@ const ChatInput = ({
         />
         <Flex alignItems={'center'} position={'absolute'} right={[2, 4]} bottom={['10px', '12px']}>
           {/* voice-input */}
-          {whisperConfig.open && !inputValue && !isChatting && sttModelList.length > 0 && (
+          {whisperConfig?.open && !inputValue && !isChatting && (
             <>
               <canvas
                 ref={canvasRef}
@@ -475,8 +474,7 @@ const ChatInput = ({
       speakingTimeString,
       stopSpeak,
       t,
-      whisperConfig.open,
-      sttModelList
+      whisperConfig?.open
     ]
   );
 
