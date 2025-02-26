@@ -56,18 +56,17 @@ const defaultFeConfigs: FastGPTFeConfigsType = {
   docUrl: '',
   openAPIDocUrl: '',
   systemPluginCourseUrl: '',
-  appTemplateCourse:
-    '',
+  appTemplateCourse: '',
   systemTitle: 'YISHOU-GPT',
-  concatMd:
-    '',
+  concatMd: '',
   limit: {
     exportDatasetLimitMinutes: 0,
     websiteSyncLimitMinuted: 0
   },
   scripts: [],
   favicon: '/favicon.ico',
-  uploadFileMaxSize: 500
+  uploadFileMaxSize: 500,
+  uploadFileMaxAmount: 50
 };
 
 export async function initSystemConfig() {
